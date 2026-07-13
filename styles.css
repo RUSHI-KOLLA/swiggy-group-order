@@ -355,6 +355,37 @@ h2 { font-size: 23px; margin-bottom: 0; }
 .birthday-eligibility.eligible { color: var(--green); }
 .birthday-eligibility.not-eligible { color: var(--red); }
 
+/* ── Party Planner ── */
+.planner-btn { margin-left: 8px; background: #f4f0fa; border-color: #d4c5e8; }
+.planner-modal { width: min(560px, calc(100vw - 32px)); }
+.planner-group-info { background: #f9faf6; border-radius: 11px; padding: 12px 14px; font-size: 13px; }
+.planner-budget-row { display: flex; align-items: center; gap: 8px; }
+.planner-currency { font-size: 20px; font-weight: 700; color: var(--muted); }
+.planner-input { flex: 1; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 18px; font-weight: 700; color: var(--ink); background: var(--card); outline: none; }
+.planner-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(26,122,77,.1); }
+.planner-hint { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.planner-textarea { width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 13px; color: var(--ink); background: var(--card); resize: vertical; font-family: "DM Sans", sans-serif; outline: none; }
+.planner-textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(26,122,77,.1); }
+.planner-services { display: grid; gap: 8px; }
+.planner-service { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #f9faf6; border-radius: 9px; font-size: 13px; font-weight: 600; }
+.service-icon { font-size: 20px; }
+.planner-cost-box { background: #f9faf6; border-radius: 11px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+.planner-cost-box .cost-label { font-size: 13px; color: var(--muted); }
+.planner-cost-box .cost-value { font-size: 18px; font-weight: 700; }
+.planner-bill { text-align: left; background: #f9faf6; border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; display: grid; gap: 10px; }
+.planner-bill-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.planner-bill-row .bill-service { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.planner-bill-row .bill-status { font-size: 10px; font-weight: 700; }
+.bill-status.confirmed { color: var(--green); }
+.bill-status.skipped { color: var(--muted); }
+.bill-status.failed { color: var(--red); }
+.planner-bill-total { margin-top: 6px; padding-top: 12px; border-top: 2px solid var(--line); display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; }
+.planner-bill-total .under { color: var(--green); }
+.planner-bill-total .over { color: var(--red); }
+.planner-budget-status { text-align: left; padding: 10px 14px; border-radius: 9px; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+.planner-budget-status.within { background: #e8f5e0; color: var(--green); }
+.planner-budget-status.exceeded { background: #fff1eb; color: var(--red); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }

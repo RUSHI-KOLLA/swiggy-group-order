@@ -31,6 +31,7 @@
             <span class="host-avatar">R</span>
             <div><small>Hosted by</small><strong>Rushi</strong></div>
             <button id="inviteButton" class="outline-button" type="button">+ Invite friends</button>
+            <button id="plannerButton" class="outline-button planner-btn" type="button">✨ Plan evening</button>
           </div>
         </section>
 
@@ -231,6 +232,105 @@
                 <span class="btn-arrow">→</span>
               </button>
               <p class="cancel-note">To cancel, please contact Swiggy customer support</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Party Planner Modal -->
+    <div id="plannerOverlay" class="checkout-overlay" aria-hidden="true">
+      <div class="checkout-modal planner-modal" role="dialog" aria-labelledby="plannerTitle" aria-modal="true">
+        <button id="closePlanner" class="modal-close" type="button" aria-label="Close planner">×</button>
+
+        <!-- Step 1: Budget Setup -->
+        <div id="plannerStep1" class="modal-step active">
+          <div class="modal-header">
+            <h2 id="plannerTitle">Plan My Evening</h2>
+            <p class="modal-subtitle">Set your budget and preferences. I'll coordinate Food, Instamart, and Dineout.</p>
+          </div>
+          <div class="modal-body">
+            <div class="modal-section">
+              <p class="modal-label">YOUR GROUP</p>
+              <div class="planner-group-info" id="plannerGroupInfo"></div>
+            </div>
+            <div class="modal-section">
+              <p class="modal-label">BUDGET</p>
+              <p class="modal-hint">Total budget across all services (Food + Instamart + Dineout)</p>
+              <div class="planner-budget-row">
+                <span class="planner-currency">₹</span>
+                <input id="plannerBudget" class="planner-input" type="number" min="500" max="5000" value="1500" />
+                <span class="planner-hint">max ₹5,000</span>
+              </div>
+            </div>
+            <div class="modal-section">
+              <p class="modal-label">PREFERENCES</p>
+              <p class="modal-hint">What kind of food, drinks, and vibe?</p>
+              <textarea id="plannerPrefs" class="planner-textarea" rows="3" placeholder="e.g. North Indian dinner, cold drinks, casual vibe">North Indian dinner, cold drinks, casual vibe</textarea>
+            </div>
+            <div class="modal-section">
+              <p class="modal-label">SERVICES WE'LL CHECK</p>
+              <div class="planner-services">
+                <div class="planner-service"><span class="service-icon">🍛</span><span>Swiggy Food</span></div>
+                <div class="planner-service"><span class="service-icon">🛒</span><span>Swiggy Instamart</span></div>
+                <div class="planner-service"><span class="service-icon">🍽️</span><span>Swiggy Dineout</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="cancelPlanner" class="modal-btn secondary" type="button">Cancel</button>
+            <button id="startPlanner" class="modal-btn primary" type="button">
+              <span class="btn-text">Start planning →</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Planning Progress (MCP Simulation) -->
+        <div id="plannerStep2" class="modal-step">
+          <div class="processing-view">
+            <div class="mcp-badge"><span class="mcp-dot"></span>Swiggy MCP · Multi-Service</div>
+            <div class="processing-spinner"></div>
+            <h2>Planning your evening…</h2>
+            <div id="plannerLog" class="mcp-log">
+              <div class="mcp-log-entry"><span class="log-tool">Initializing</span><span class="log-status pending">pending</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Confirmation Step (reused for each service) -->
+        <div id="plannerStep3" class="modal-step">
+          <div class="modal-header">
+            <div id="plannerConfirmBadge" class="mcp-badge"></div>
+            <h2 id="plannerConfirmTitle">Review & Confirm</h2>
+            <p id="plannerConfirmSub" class="modal-subtitle">Please confirm before proceeding.</p>
+          </div>
+          <div class="modal-body">
+            <div id="plannerConfirmDetails" class="modal-section"></div>
+            <div id="plannerConfirmCost" class="modal-section planner-cost-box"></div>
+          </div>
+          <div class="modal-footer">
+            <button id="plannerSkip" class="modal-btn secondary" type="button">Skip (unavailable)</button>
+            <button id="plannerConfirm" class="modal-btn primary" type="button">
+              <span class="btn-text">Confirm ✓</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 4: Final Combined Bill -->
+        <div id="plannerStep4" class="modal-step">
+          <div class="success-view">
+            <div class="success-icon">✓</div>
+            <div class="mcp-badge success"><span class="mcp-dot"></span>Evening Planned</div>
+            <h2>Your evening is set!</h2>
+            <p class="success-subtitle" id="plannerFinalSub"></p>
+
+            <div id="plannerBill" class="planner-bill"></div>
+            <div id="plannerBudgetStatus" class="planner-budget-status"></div>
+
+            <div class="modal-footer" style="justify-content: center;">
+              <button id="plannerDone" class="modal-btn primary full" type="button">
+                <span class="btn-text">Apply to order →</span>
+              </button>
             </div>
           </div>
         </div>

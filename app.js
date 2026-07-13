@@ -402,30 +402,31 @@ let selectedPayment = 'ONLINE';
 
 /* ── Focus trap helper ── */
 function trapFocus(element) {
-  releaseTrap();
+  releaseTrap(element);
   const prev = document.activeElement;
   const focusable = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
   const first = focusable[0];
   const last = focusable[focusable.length - 1];
   function handler(e) {
-    if (e.key !== 'Tab' || !overlay.classList.contains('open')) return;
+    if (e.key !== 'Tab' || !element.classList.contains('open')) return;
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
   document.addEventListener('keydown', handler);
-  overlay._focusTrap = handler;
-  overlay._prevFocus = prev;
+  element._focusTrap = handler;
+  element._prevFocus = prev;
   if (first) first.focus();
 }
 
-function releaseTrap() {
-  if (overlay._focusTrap) {
-    document.removeEventListener('keydown', overlay._focusTrap);
-    delete overlay._focusTrap;
+function releaseTrap(element) {
+  const el = element || overlay;
+  if (el._focusTrap) {
+    document.removeEventListener('keydown', el._focusTrap);
+    delete el._focusTrap;
   }
-  if (overlay._prevFocus) {
-    overlay._prevFocus.focus();
-    delete overlay._prevFocus;
+  if (el._prevFocus) {
+    el._prevFocus.focus();
+    delete el._prevFocus;
   }
 }
 
@@ -450,7 +451,7 @@ function closeCheckout() {
   overlay.classList.remove('open');
   overlay.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
-  releaseTrap();
+  releaseTrap(overlay);
 }
 
 document.querySelector('#closeModal').addEventListener('click', closeCheckout);
@@ -667,6 +668,399 @@ async function runMcpSimulation() {
 document.querySelector('#trackOrder').addEventListener('click', () => {
   closeCheckout();
   toast('Order is being tracked — Swiggy delivery partner assigned (demo)');
+});
+
+/* ═══════════════════════════════════════════════════════════
+   Party Planner — Multi-service orchestration
+   Food + Instamart + Dineout with budget cap, confirmation,
+   fallback, and transparent bill.
+   ═══════════════════════════════════════════════════════════ */
+
+const plannerOverlay = document.querySelector('#plannerOverlay');
+const plannerStep1    = document.querySelector('#plannerStep1');
+const plannerStep2    = document.querySelector('#plannerStep2');
+const plannerStep3    = document.querySelector('#plannerStep3');
+const plannerStep4    = document.querySelector('#plannerStep4');
+
+let plannerState = {
+  budget: 1500,
+  results: {},
+};
+
+function showPlannerStep(el) {
+  [plannerStep1, plannerStep2, plannerStep3, plannerStep4].forEach((s) => s.classList.remove('active'));
+  el.classList.add('active');
+  plannerOverlay.querySelector('.checkout-modal').scrollTop = 0;
+}
+
+function openPlanner() {
+  plannerState = { budget: 1500, results: {} };
+  showPlannerStep(plannerStep1);
+  document.querySelector('#plannerGroupInfo').innerHTML = `<strong>${state.people.length} people</strong> · Hosted by ${state.people.find((p) => p.host)?.name || 'Host'}`;
+  plannerOverlay.classList.add('open');
+  plannerOverlay.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  trapFocus(plannerOverlay);
+}
+
+function closePlanner() {
+  plannerOverlay.classList.remove('open');
+  plannerOverlay.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  releaseTrap(plannerOverlay);
+}
+
+document.querySelector('#plannerButton').addEventListener('click', openPlanner);
+document.querySelector('#closePlanner').addEventListener('click', closePlanner);
+document.querySelector('#cancelPlanner').addEventListener('click', closePlanner);
+plannerOverlay.addEventListener('click', (e) => { if (e.target === plannerOverlay) closePlanner(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && plannerOverlay.classList.contains('open')) closePlanner(); });
+
+document.querySelector('#plannerBudget').addEventListener('input', (e) => {
+  plannerState.budget = Math.min(5000, Math.max(500, parseInt(e.target.value) || 500));
+});
+
+/* ── Start planning ── */
+document.querySelector('#startPlanner').addEventListener('click', async () => {
+  plannerState.budget = parseInt(document.querySelector('#plannerBudget').value) || 1500;
+  if (plannerState.budget < 500) { toast('Minimum budget is ₹500'); return; }
+  showPlannerStep(plannerStep2);
+  await runPlannerSimulation();
+});
+
+/**
+ * Multi-service orchestration:
+ *   1. Dineout → search_restaurants_dineout → get_available_slots → book_table
+ *   2. Food  → search_restaurants → get_restaurant_menu → place_food_order
+ *   3. Instamart → search_products → checkout
+ *
+ * Each step pauses for user confirmation.
+ */
+async function runPlannerSimulation() {
+  const log = document.querySelector('#plannerLog');
+  plannerState.results = { dineout: null, food: null, instamart: null };
+  let totalSpent = 0;
+  let remaining = plannerState.budget;
+
+  const addLog = (tool, status, cls) => {
+    const entry = document.createElement('div');
+    entry.className = `mcp-log-entry ${cls || ''}`;
+    entry.innerHTML = `<span class="log-tool">${tool}</span><span class="log-status ${status}">${status}</span>`;
+    log.appendChild(entry);
+  };
+
+  const runStep = (tool, ms) => new Promise((resolve) => {
+    addLog(tool, 'running', '');
+    setTimeout(() => {
+      const done = log.lastElementChild;
+      done.classList.add('done');
+      done.querySelector('.log-status').className = 'log-status done';
+      done.querySelector('.log-status').textContent = '✓ done';
+      setTimeout(resolve, 200);
+    }, ms);
+  });
+
+  // ── Phase 1: Dineout ──
+  addLog('🔍 search_restaurants_dineout', 'running');
+  await sleep(700 + Math.random() * 400);
+  log.lastElementChild.querySelector('.log-status').textContent = '✓ found 3 options';
+  log.lastElementChild.classList.add('done');
+
+  const dineoutOptions = [
+    { name: 'The Grand Pavilion', cuisine: 'North Indian', rating: 4.3, costForTwo: 800, slots: ['7:00 PM', '7:30 PM'], free: true },
+    { name: 'Spice Garden', cuisine: 'Mughlai', rating: 4.1, costForTwo: 600, slots: ['7:30 PM', '8:00 PM'], free: true },
+    { name: 'Rooftop Bites', cuisine: 'Fusion', rating: 4.5, costForTwo: 1200, slots: [], free: false },
+  ];
+
+  const dineoutResult = await showPlannerConfirm(
+    'dineout',
+    '🍽️ Dineout',
+    dineoutOptions,
+    (opt) => `${opt.name} · ${opt.cuisine} ★${opt.rating} · ₹${opt.costForTwo}/2 · Slots: ${opt.slots.length ? opt.slots.join(', ') : 'none'}`,
+    (opt) => {
+      if (!opt.slots.length) return { ok: false, reason: 'No available slots' };
+      if (!opt.free) return { ok: false, reason: 'Paid deals not supported' };
+      return { ok: true, cost: Math.round(opt.costForTwo * state.people.length / 2) };
+    },
+    'Dineout'
+  );
+
+  if (dineoutResult.confirmed && dineoutResult.selected) {
+    const cost = Math.round(dineoutResult.selected.costForTwo * state.people.length / 2);
+    addLog('🔍 get_available_slots', 'running');
+    await sleep(400 + Math.random() * 300);
+    log.lastElementChild.querySelector('.log-status').textContent = '✓ slots available';
+    log.lastElementChild.classList.add('done');
+
+    addLog('📅 book_table', 'running');
+    await sleep(500 + Math.random() * 300);
+    log.lastElementChild.querySelector('.log-status').textContent = `✓ Booked at ${dineoutResult.selected.name}`;
+    log.lastElementChild.classList.add('done');
+
+    plannerState.results.dineout = { name: dineoutResult.selected.name, cost, status: 'confirmed' };
+    totalSpent += cost;
+    remaining = plannerState.budget - totalSpent;
+    toast(`Table booked at ${dineoutResult.selected.name}`);
+  } else {
+    addLog('📅 book_table', 'skipped', '');
+    log.lastElementChild.querySelector('.log-status').textContent = dineoutResult.reason || 'Skipped';
+    log.lastElementChild.classList.add('done');
+    plannerState.results.dineout = { name: '—', cost: 0, status: dineoutResult.reason || 'skipped' };
+  }
+
+  // ── Phase 2: Food ──
+  addLog('🔍 search_restaurants', 'running');
+  await sleep(600 + Math.random() * 400);
+  log.lastElementChild.querySelector('.log-status').textContent = '✓ found options';
+  log.lastElementChild.classList.add('done');
+
+  const foodOptions = [
+    { name: 'Spice & Slice', cuisine: 'North Indian · Pizza', deliveryFee: 57, items: ['Paneer Tikka Wrap ₹229', 'Chicken Biryani ₹319', 'Margherita Pizza ₹299'], estimated: 800 },
+    { name: 'Dragon Bowl', cuisine: 'Asian · Noodles', deliveryFee: 47, items: ['Veg Manchurian ₹199', 'Fried Rice ₹249', 'Noodles ₹179'], estimated: 700 },
+    { name: 'Burger Barn', cuisine: 'American · Fast Food', deliveryFee: 67, items: ['Aloo Tikki Burger ₹99', 'Chicken Burger ₹179', 'Fries ₹129'], estimated: 500 },
+  ];
+
+  const remainingBudget = plannerState.budget - totalSpent;
+  const affordableFood = foodOptions.filter((o) => o.estimated <= remainingBudget);
+
+  if (affordableFood.length) {
+    const foodResult = await showPlannerConfirm(
+      'food',
+      '🍛 Swiggy Food',
+      affordableFood,
+      (opt) => `${opt.name} · ${opt.cuisine} · Est. ₹${opt.estimated} · Delivery ₹${opt.deliveryFee}`,
+      (opt) => ({ ok: true, cost: opt.estimated + opt.deliveryFee }),
+      'Food Delivery'
+    );
+
+    if (foodResult.confirmed && foodResult.selected) {
+      const cost = foodResult.selected.estimated + foodResult.selected.deliveryFee;
+      addLog('🍛 get_restaurant_menu', 'running');
+      await sleep(400 + Math.random() * 300);
+      log.lastElementChild.querySelector('.log-status').textContent = '✓ menu loaded';
+      log.lastElementChild.classList.add('done');
+
+      addLog('🍛 place_food_order', 'running');
+      await sleep(500 + Math.random() * 300);
+      log.lastElementChild.querySelector('.log-status').textContent = `✓ Order placed at ${foodResult.selected.name}`;
+      log.lastElementChild.classList.add('done');
+
+      plannerState.results.food = { name: foodResult.selected.name, cost, status: 'confirmed' };
+      totalSpent += cost;
+      remaining = plannerState.budget - totalSpent;
+    } else {
+      addLog('🍛 place_food_order', 'skipped', '');
+      log.lastElementChild.querySelector('.log-status').textContent = foodResult.reason || 'Declined';
+      log.lastElementChild.classList.add('done');
+      plannerState.results.food = { name: '—', cost: 0, status: 'skipped' };
+    }
+  } else {
+    addLog('🍛 search_restaurants', 'fallback', '');
+    log.lastElementChild.querySelector('.log-status').textContent = 'No affordable options — skipped';
+    log.lastElementChild.classList.add('done');
+    plannerState.results.food = { name: '—', cost: 0, status: 'over budget' };
+  }
+
+  // ── Phase 3: Instamart ──
+  remaining = plannerState.budget - totalSpent;
+
+  if (remaining >= 100) {
+    addLog('🛒 search_products', 'running');
+    await sleep(500 + Math.random() * 400);
+    log.lastElementChild.querySelector('.log-status').textContent = '✓ products found';
+    log.lastElementChild.classList.add('done');
+
+    const instamartBundle = [
+      { name: 'Coke (1L x 4)', price: 160 },
+      { name: 'Chilli Potato Chips (Pack x 2)', price: 80 },
+      { name: 'Mineral Water (1L x 6)', price: 120 },
+      { name: 'Ice Cream Tub (500ml)', price: 150 },
+    ];
+    const bundleCost = instamartBundle.reduce((s, i) => s + i.price, 0);
+
+    const instamartResult = await showPlannerConfirm(
+      'instamart',
+      '🛒 Swiggy Instamart',
+      [{ name: 'Party Drinks & Snacks Bundle', items: instamartBundle.map((i) => `${i.name} — ₹${i.price}`), total: bundleCost }],
+      (opt) => `${opt.name}: ${opt.items.join(', ')}`,
+      (opt) => {
+        if (opt.total > remaining) return { ok: false, reason: `₹${opt.total} exceeds remaining ₹${remaining}` };
+        return { ok: true, cost: opt.total };
+      },
+      'Instamart'
+    );
+
+    if (instamartResult.confirmed && instamartResult.selected) {
+      const cost = instamartResult.selected.total;
+      addLog('🛒 checkout', 'running');
+      await sleep(500 + Math.random() * 300);
+      log.lastElementChild.querySelector('.log-status').textContent = `✓ Order placed (₹${cost})`;
+      log.lastElementChild.classList.add('done');
+
+      plannerState.results.instamart = { name: 'Drinks & Snacks', cost, status: 'confirmed' };
+      totalSpent += cost;
+    } else {
+      addLog('🛒 checkout', 'skipped', '');
+      log.lastElementChild.querySelector('.log-status').textContent = instamartResult.reason || 'Declined';
+      log.lastElementChild.classList.add('done');
+      plannerState.results.instamart = { name: '—', cost: 0, status: 'skipped' };
+    }
+  } else {
+    addLog('🛒 search_products', 'fallback', '');
+    log.lastElementChild.querySelector('.log-status').textContent = 'Budget exhausted — skipped';
+    log.lastElementChild.classList.add('done');
+    plannerState.results.instamart = { name: '—', cost: 0, status: 'over budget' };
+  }
+
+  // ── Show final bill ──
+  await sleep(500);
+  showPlannerBill(totalSpent);
+}
+
+/* ── Confirmation dialog (reused for each service) ── */
+function showPlannerConfirm(serviceKey, badgeLabel, options, formatFn, validateFn, stepName) {
+  return new Promise((resolve) => {
+    const badgeEl = document.querySelector('#plannerConfirmBadge');
+    const titleEl = document.querySelector('#plannerConfirmTitle');
+    const subEl = document.querySelector('#plannerConfirmSub');
+    const detailsEl = document.querySelector('#plannerConfirmDetails');
+    const costEl = document.querySelector('#plannerConfirmCost');
+
+    let selectedIndex = 0;
+    const remaining = plannerState.budget - Object.values(plannerState.results).reduce((s, r) => s + (r ? r.cost : 0), 0);
+
+    const renderConfirm = () => {
+      badgeEl.innerHTML = `<span class="mcp-dot"></span>${badgeLabel}`;
+      titleEl.textContent = `Confirm ${stepName}`;
+      subEl.textContent = `Remaining budget: ₹${remaining}. Choose or skip.`;
+
+      detailsEl.innerHTML = options.map((opt, i) => {
+        const details = formatFn(opt);
+        const validation = validateFn(opt);
+        const disabled = !validation.ok;
+        return `<div class="payment-option ${i === selectedIndex && !disabled ? 'active' : ''}" style="${disabled ? 'opacity:0.5;' : ''}" data-planner-opt="${i}">
+          <div style="flex:1">
+            <strong>${disabled ? '✗ ' : ''}${escapeHtml(String(details).split(' · ')[0])}</strong>
+            <small>${escapeHtml(String(details))}</small>
+          </div>
+          <div style="text-align:right">
+            ${validation.ok ? `<strong style="color:var(--green)">₹${validation.cost}</strong>` : `<small style="color:var(--red)">${validation.reason}</small>`}
+          </div>
+        </div>`;
+      }).join('');
+
+      const sel = options[selectedIndex];
+      const val = validateFn(sel);
+      if (val.ok) {
+        costEl.innerHTML = `<span class="cost-label">${stepName} cost</span><span class="cost-value" style="color:var(--green)">₹${val.cost}</span>`;
+      } else {
+        costEl.innerHTML = `<span class="cost-label">${stepName}</span><span class="cost-value" style="color:var(--red)">${val.reason}</span>`;
+      }
+    };
+
+    renderConfirm();
+    showPlannerStep(plannerStep3);
+
+    // Selection click
+    const handler = (e) => {
+      const optEl = e.target.closest('[data-planner-opt]');
+      if (!optEl) return;
+      const idx = parseInt(optEl.dataset.plannerOpt);
+      const validation = validateFn(options[idx]);
+      if (!validation.ok) return;
+      selectedIndex = idx;
+      document.querySelectorAll('[data-planner-opt]').forEach((el, i) => el.classList.toggle('active', i === idx));
+      const sel = options[selectedIndex];
+      const val = validateFn(sel);
+      costEl.innerHTML = `<span class="cost-label">${stepName} cost</span><span class="cost-value" style="color:var(--green)">₹${val.cost}</span>`;
+    };
+    plannerStep3.addEventListener('click', handler);
+
+    // Confirm button
+    const confirmBtn = document.querySelector('#plannerConfirm');
+    const skipBtn = document.querySelector('#plannerSkip');
+
+    const cleanup = () => {
+      plannerStep3.removeEventListener('click', handler);
+      confirmBtn.removeEventListener('click', onConfirm);
+      skipBtn.removeEventListener('click', onSkip);
+    };
+
+    const onConfirm = () => {
+      cleanup();
+      const sel = options[selectedIndex];
+      const val = validateFn(sel);
+      if (!val.ok) { resolve({ confirmed: false, reason: val.reason }); return; }
+      resolve({ confirmed: true, selected: sel, cost: val.cost });
+    };
+
+    const onSkip = () => {
+      cleanup();
+      const sel = options[0];
+      const val = validateFn(sel);
+      resolve({ confirmed: false, selected: null, reason: val.ok ? 'Skipped by user' : val.reason || 'Unavailable' });
+    };
+
+    confirmBtn.addEventListener('click', onConfirm);
+    skipBtn.addEventListener('click', onSkip);
+  });
+}
+
+/* ── Display final combined bill ── */
+function showPlannerBill(totalSpent) {
+  showPlannerStep(plannerStep4);
+  const { dineout, food, instamart } = plannerState.results;
+
+  const statusLabel = (r) => {
+    if (r.status === 'confirmed') return `<span class="bill-status confirmed">✓ Confirmed</span>`;
+    return `<span class="bill-status ${r.status === 'skipped' || r.status === 'over budget' ? 'skipped' : 'failed'}">${r.status === 'skipped' || r.status === 'over budget' ? '— Skipped' : '✗ Failed'}</span>`;
+  };
+
+  const rows = [
+    { icon: '🍽️', name: 'Dineout — ' + dineout.name, cost: dineout.cost, status: statusLabel(dineout) },
+    { icon: '🍛', name: 'Food — ' + food.name, cost: food.cost, status: statusLabel(food) },
+    { icon: '🛒', name: 'Instamart — ' + instamart.name, cost: instamart.cost, status: statusLabel(instamart) },
+  ];
+
+  document.querySelector('#plannerBill').innerHTML = rows.map((r) => `
+    <div class="planner-bill-row">
+      <div class="bill-service"><span>${r.icon}</span><span>${escapeHtml(r.name)}</span></div>
+      ${r.status}
+      <strong>${r.cost ? '₹' + r.cost : '₹0'}</strong>
+    </div>
+  `).join('') + `
+    <div class="planner-bill-total">
+      <span>Total spent</span>
+      <strong class="${totalSpent <= plannerState.budget ? 'under' : 'over'}">₹${totalSpent} / ₹${plannerState.budget}</strong>
+    </div>`;
+
+  const budgetEl = document.querySelector('#plannerBudgetStatus');
+  if (totalSpent <= plannerState.budget) {
+    budgetEl.className = 'planner-budget-status within';
+    budgetEl.textContent = `✓ Budget respected — ₹${plannerState.budget - totalSpent} remaining`;
+  } else {
+    budgetEl.className = 'planner-budget-status exceeded';
+    budgetEl.textContent = `⚠ Budget exceeded by ₹${totalSpent - plannerState.budget} — adjust or skip items`;
+  }
+
+  document.querySelector('#plannerFinalSub').textContent = `${state.people.length} people · ₹${totalSpent} total · ₹${Math.round(totalSpent / state.people.length)} per person`;
+}
+
+/* ── Apply planned items to the existing order ── */
+document.querySelector('#plannerDone').addEventListener('click', () => {
+  const { food, instamart } = plannerState.results;
+  if (food && food.status === 'confirmed') {
+    state.cart = [
+      ...state.cart,
+      { id: Date.now() + 1, menuId: 'biryani', owner: currentUserId(), qty: Math.ceil(state.people.length / 2) },
+    ];
+  }
+  if (instamart && instamart.status === 'confirmed') {
+    state.cart.push({ id: Date.now() + 2, menuId: 'fries', owner: 'shared', qty: state.people.length });
+  }
+  closePlanner();
+  render();
+  toast('Party planner items added to your order!');
 });
 
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
