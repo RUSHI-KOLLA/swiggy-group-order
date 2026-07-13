@@ -167,6 +167,8 @@ function renderSummary() {
   document.querySelector('#birthdaySaving').textContent = state.birthdayMode ? `${money(discAmount)} reward${discAmount >= 150 ? ' (max)' : ' (20% off)'}` : 'Party mode off';
   document.querySelector('#birthdayCard').classList.toggle('off', !state.birthdayMode);
   document.querySelector('#birthdayToggle').checked = state.birthdayMode;
+  const birthdayHost = state.people.find((p) => p.host);
+  document.querySelector('#birthdayTitle').textContent = birthdayHost ? `It\u2019s ${birthdayHost.name}\u2019s birthday!` : 'Birthday Party Mode';
   const eligEl = document.querySelector('#birthdayEligibility');
   if (birthdayEligible()) {
     eligEl.textContent = state.birthdayApplied ? '✓ Applied' : '✓ Eligible today';
@@ -745,6 +747,7 @@ document.querySelector('#startPlanner').addEventListener('click', async () => {
  */
 async function runPlannerSimulation() {
   const log = document.querySelector('#plannerLog');
+  log.innerHTML = '';
   plannerState.results = { dineout: null, food: null, instamart: null };
   let totalSpent = 0;
   let remaining = plannerState.budget;

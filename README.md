@@ -27,6 +27,21 @@ The prototype demonstrates a sophisticated integration boundary with the **Swigg
 2. `place_food_order` $\rightarrow$ Finalize the order on behalf of the host.
 3. `track_food_order` $\rightarrow$ Get initial delivery status and ETA.
 
+### ✨ AI Party Planner (Cross-Service)
+An intelligent multi-service orchestrator that coordinates **Food, Instamart, and Dineout** in a single session:
+
+- **Budget Cap**: User sets a ₹500–₹5,000 total budget upfront. Each service checks remaining budget before proceeding.
+- **Service Confirmation**: Every step (Dineout booking, Food order, Instamart checkout) requires explicit user confirmation — nothing happens automatically.
+- **Graceful Fallback**: If a service has no availability or exceeds budget, it is skipped with a clear reason shown in the MCP log.
+- **Transparent Combined Bill**: Final screen shows all 3 services on one ledger with confirmed/skipped status, individual costs, and total vs budget with per-person split.
+
+**Orchestration flow:**
+1. **Dineout**: `search_restaurants_dineout` $\rightarrow$ `get_available_slots` $\rightarrow$ user confirms $\rightarrow$ `book_table`
+2. **Food**: `search_restaurants` $\rightarrow$ `get_restaurant_menu` $\rightarrow$ user confirms $\rightarrow$ `place_food_order`
+3. **Instamart**: `search_products` $\rightarrow$ user confirms $\rightarrow$ `checkout`
+
+Planned items can be applied to the group cart for splitting.
+
 ---
 
 ## 🛠️ Technical Stack
@@ -65,8 +80,9 @@ $$\text{Individual Share} = \text{Item Cost} + \left( \frac{\text{Item Cost}}{\t
 
 ---
 
-## 🗺️ MCP Tooling Journey
+## 🗺️ MCP Tooling Journeys
 
+### Food Checkout Journey
 The "Confirm Order" flow simulates the following MCP interaction:
 
 | Stage | Tool Called | Purpose |
@@ -74,6 +90,15 @@ The "Confirm Order" flow simulates the following MCP interaction:
 | **Verification** | `get_food_cart` | Validates final totals and available payment methods. |
 | **Execution** | `place_food_order` | Commits the order to the Swiggy Food delivery system. |
 | **Tracking** | `track_food_order` | Initializes real-time delivery monitoring. |
+
+### Party Planner Multi-Service Journey
+The "Plan Evening" flow coordinates across 3 MCP servers:
+
+| Service | Tools Called |
+| :--- | :--- |
+| **Dineout** | `search_restaurants_dineout` $\rightarrow$ `get_available_slots` $\rightarrow$ `book_table` |
+| **Food** | `search_restaurants` $\rightarrow$ `get_restaurant_menu` $\rightarrow$ `place_food_order` |
+| **Instamart** | `search_products` $\rightarrow$ `checkout` |
 
 ---
 
