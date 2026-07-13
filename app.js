@@ -726,12 +726,12 @@ plannerOverlay.addEventListener('click', (e) => { if (e.target === plannerOverla
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && plannerOverlay.classList.contains('open')) closePlanner(); });
 
 document.querySelector('#plannerBudget').addEventListener('input', (e) => {
-  plannerState.budget = Math.min(5000, Math.max(500, parseInt(e.target.value) || 500));
+  plannerState.budget = Math.min(1000, Math.max(500, parseInt(e.target.value) || 500));
 });
 
 /* ── Start planning ── */
 document.querySelector('#startPlanner').addEventListener('click', async () => {
-  plannerState.budget = parseInt(document.querySelector('#plannerBudget').value) || 1500;
+  plannerState.budget = parseInt(document.querySelector('#plannerBudget').value) || 1000;
   if (plannerState.budget < 500) { toast('Minimum budget is ₹500'); return; }
   showPlannerStep(plannerStep2);
   await runPlannerSimulation();
