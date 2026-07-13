@@ -779,6 +779,7 @@ async function runPlannerSimulation() {
   const dineoutOptions = [
     { name: 'The Grand Pavilion', cuisine: 'North Indian', rating: 4.3, costForTwo: 800, slots: ['7:00 PM', '7:30 PM'], free: true },
     { name: 'Spice Garden', cuisine: 'Mughlai', rating: 4.1, costForTwo: 600, slots: ['7:30 PM', '8:00 PM'], free: true },
+    { name: 'Quick Bites Café', cuisine: 'Café · Snacks', rating: 4.0, costForTwo: 350, slots: ['7:00 PM', '7:15 PM'], free: true },
     { name: 'Rooftop Bites', cuisine: 'Fusion', rating: 4.5, costForTwo: 1200, slots: [], free: false },
   ];
 
