@@ -223,6 +223,13 @@ function render() {
   document.querySelector('#checkoutButton').style.opacity = '1';
   ensureHost();
 
+  // Dynamic host info in hero
+  const host = state.people.find((p) => p.host) || state.people[0];
+  if (host) {
+    document.querySelector('#hostName').textContent = host.name;
+    document.querySelector('#hostAvatar').textContent = host.initials;
+  }
+
   // Clean up cart items whose owner no longer exists
   const validIds = new Set(state.people.map((p) => p.id));
   validIds.add('shared');
