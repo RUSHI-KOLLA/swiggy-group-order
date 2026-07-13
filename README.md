@@ -18,7 +18,7 @@ Switch between two powerful splitting modes:
 
 ### 🎂 Birthday Party Mode
 A dedicated social feature that celebrates the host:
-- **Host Reward**: Toggle "Birthday Mode" to apply a special reward (e.g., ₹150) to the total bill.
+- **Host Reward**: Toggle "Birthday Mode" to apply a special reward (up to ₹150 or 20% off) to the total bill.
 - **Social Signaling**: Visually marks the event as a celebration, enhancing the group experience.
 
 ### 🤖 Swiggy MCP Simulation

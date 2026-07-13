@@ -236,15 +236,6 @@ h2 { font-size: 23px; margin-bottom: 0; }
 .modal-btn.primary:hover { background: var(--green-dark); }
 .modal-btn.primary.full { width: 100%; justify-content: center; }
 .modal-btn .btn-arrow { font-size: 16px; }
-.modal-btn.loading .btn-text { opacity: .5; }
-.modal-btn.loading .btn-arrow { display: none; }
-.modal-btn.loading::after {
-  content: ''; width: 14px; height: 14px;
-  border: 2px solid rgba(255,255,255,.3);
-  border-top-color: white; border-radius: 50%;
-  animation: spin .6s linear infinite;
-}
-
 /* ── Processing View ── */
 .processing-view {
   padding: 48px 28px; text-align: center;
@@ -351,7 +342,7 @@ h2 { font-size: 23px; margin-bottom: 0; }
   color: var(--muted); font-size: 10px; margin: -2px 0 0;
   line-height: 1.4;
 }
-.cancel-note strong { color: var(--ink); }
+
 
 /* ── Modal responsive ── */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }

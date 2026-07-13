@@ -85,8 +85,9 @@ function splitAmounts() {
     const sub = cartSubtotal();
     if (!sub) return state.people.map(() => Math.round(targetTotal / n));
     rawShares = state.people.map((person) => {
-      const shareRatio = itemValueFor(person.id) / sub;
-      return itemValueFor(person.id) + fees() * shareRatio - discount() * shareRatio;
+      const val = itemValueFor(person.id);
+      const shareRatio = val / sub;
+      return val + fees() * shareRatio - discount() * shareRatio;
     });
   }
 
@@ -140,18 +141,18 @@ function renderCart() {
     cartList.innerHTML = '<p class="empty-cart">Your crew is hungry. Add something delicious above.</p>';
     return;
   }
-  cartList.innerHTML = state.cart.map((cartItem) => {
+  const validItems = state.cart.filter((ci) => itemFor(ci));
+  cartList.innerHTML = validItems.map((cartItem) => {
     const item = itemFor(cartItem);
-    if (!item) return '';
     return `<div class="cart-item">
       <div><strong>${escapeHtml(item.name)}</strong><small>${money(item.price)} each</small></div>
-      <select data-owner-id="${cartItem.id}" aria-label="Who is paying for ${escapeHtml(item.name)}">${ownerOptions(cartItem.owner)}</select>
+      <select data-owner-id="${escapeHtml(String(cartItem.id))}" aria-label="Who is paying for ${escapeHtml(item.name)}">${ownerOptions(cartItem.owner)}</select>
       <div class="quantity-control">
-        <button data-change-qty="${cartItem.id}" data-change="-1" type="button" aria-label="Decrease quantity">−</button>
+        <button data-change-qty="${escapeHtml(String(cartItem.id))}" data-change="-1" type="button" aria-label="Decrease quantity">−</button>
         <span>${cartItem.qty}</span>
-        <button data-change-qty="${cartItem.id}" data-change="1" type="button" aria-label="Increase quantity">+</button>
+        <button data-change-qty="${escapeHtml(String(cartItem.id))}" data-change="1" type="button" aria-label="Increase quantity">+</button>
       </div>
-      <button class="remove-item" data-remove-id="${cartItem.id}" type="button" aria-label="Remove ${escapeHtml(item.name)}">×</button>
+      <button class="remove-item" data-remove-id="${escapeHtml(String(cartItem.id))}" type="button" aria-label="Remove ${escapeHtml(item.name)}">×</button>
     </div>`;
   }).join('');
 }
@@ -162,7 +163,8 @@ function renderSummary() {
   document.querySelector('#discount').textContent = `−${money(discount())}`;
   document.querySelector('#total').textContent = money(total());
   document.querySelector('#discountRow').style.display = discount() ? 'flex' : 'none';
-  document.querySelector('#birthdaySaving').textContent = state.birthdayMode ? `${money(discount())} reward` : 'Party mode off';
+  const discAmount = discount();
+  document.querySelector('#birthdaySaving').textContent = state.birthdayMode ? `${money(discAmount)} reward${discAmount >= 150 ? ' (max)' : ' (20% off)'}` : 'Party mode off';
   document.querySelector('#birthdayCard').classList.toggle('off', !state.birthdayMode);
   document.querySelector('#birthdayToggle').checked = state.birthdayMode;
   const eligEl = document.querySelector('#birthdayEligibility');
@@ -224,11 +226,14 @@ function render() {
   // Clean up cart items whose owner no longer exists
   const validIds = new Set(state.people.map((p) => p.id));
   validIds.add('shared');
+  let reassigned = 0;
   state.cart.forEach((ci) => {
     if (!validIds.has(ci.owner)) {
       ci.owner = currentUserId();
+      reassigned++;
     }
   });
+  if (reassigned) toast(`Some items reassigned — owner is no longer in the group`);
 
   // Warn if group is very large
   if (state.people.length > 12) {
@@ -292,7 +297,9 @@ document.addEventListener('click', (event) => {
     const fallbackUpi = state.people.find((p) => p.host)?.upi || 'host@upi';
     const text = `Hey ${person.name}! Your share for Friday Feast on Splitly is ${money(amount)}. Pay ${host.name} via UPI (${host.upi || fallbackUpi}).`;
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).catch(() => {});
+      navigator.clipboard.writeText(text).catch(() => toast('Could not copy to clipboard — try again'));
+    } else {
+      toast('Clipboard not available in this browser');
     }
     person.settlementStatus = 'requested';
     render();
@@ -311,6 +318,15 @@ document.addEventListener('click', (event) => {
     toast(`${person.name} marked as paid`);
     return;
   }
+});
+
+// Keyboard handler for role="button" elements (Copy UPI)
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const btn = e.target.closest('[data-copy-share]');
+  if (!btn) return;
+  e.preventDefault();
+  btn.click();
 });
 
 document.addEventListener('change', (event) => {
@@ -353,7 +369,7 @@ document.querySelector('#requestButton').addEventListener('click', () => {
 });
 document.querySelector('#inviteButton').addEventListener('click', () => toast('Invite link copied: splitly.app/join/friday-feast (demo)'));
 document.querySelector('#addFriendButton').addEventListener('click', () => {
-  const name = window.prompt('Friend’s name');
+  const name = window.prompt('Friend’s name (max 18 characters)');
   if (!name || !name.trim()) return;
   const cleanName = name.trim();
   if (cleanName.length > 18) {
@@ -366,7 +382,8 @@ document.querySelector('#addFriendButton').addEventListener('click', () => {
 document.querySelector('#checkoutButton').addEventListener('click', () => {
   if (!state.cart.length) { toast('Your cart is empty — add items first'); return; }
   if (!cartSubtotal()) { toast('Your cart subtotal is zero — add items before checkout'); return; }
-  if (total() > 1000) { toast('This demo stays within the ₹1,000 Builder order limit'); return; }
+  const preDiscountTotal = cartSubtotal() + fees();
+  if (preDiscountTotal > 1000) { toast('This demo stays within the ₹1,000 Builder order limit'); return; }
   openCheckout();
 });
 
@@ -407,6 +424,7 @@ function releaseTrap() {
     delete overlay._focusTrap;
   }
   if (overlay._prevFocus) {
+    overlay._prevFocus.focus();
     delete overlay._prevFocus;
   }
 }
