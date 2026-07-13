@@ -49,10 +49,11 @@
             <h2>It’s Rushi’s birthday!</h2>
             <p>Celebrate together and unlock the best available host reward on this order.</p>
           </div>
-          <div class="birthday-control">
+            <div class="birthday-control">
             <span id="birthdaySaving">₹150 reward</span>
-            <label class="switch" aria-label="Toggle Birthday Party Mode">
-              <input id="birthdayToggle" type="checkbox" checked />
+            <span id="birthdayEligibility" class="birthday-eligibility"></span>
+            <label class="switch" for="birthdayToggle">
+              <input id="birthdayToggle" type="checkbox" />
               <span></span>
             </label>
           </div>
@@ -229,7 +230,7 @@
                 <span class="btn-text">Track order on Swiggy</span>
                 <span class="btn-arrow">→</span>
               </button>
-              <p class="cancel-note">To cancel, call Swiggy customer care at <strong>080-67466729</strong></p>
+              <p class="cancel-note">To cancel, please contact Swiggy customer support</p>
             </div>
           </div>
         </div>
@@ -237,6 +238,7 @@
     </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="checkoutAnnounce" class="sr-only" role="status" aria-live="assertive" aria-atomic="true"></div>
     <script src="app.js"></script>
   </body>
 </html>

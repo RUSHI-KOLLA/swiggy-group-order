@@ -1,11 +1,13 @@
 const state = {
   splitType: 'exact',
-  birthdayMode: true,
+  birthdayMode: false,
+  birthdayApplied: false,
+  hostDob: '1999-06-15',
   people: [
-    { id: 'rushi', name: 'Rushi', initials: 'R', host: true, upi: 'rushi@okaxis' },
-    { id: 'arjun', name: 'Arjun', initials: 'A', upi: 'arjun@upi' },
-    { id: 'riya', name: 'Riya', initials: 'R', upi: 'riya@icici' },
-    { id: 'kabir', name: 'Kabir', initials: 'K', upi: 'kabir@ybl' },
+    { id: 'rushi', name: 'Rushi', initials: 'R', host: true, upi: 'rushi@okaxis', settlementStatus: 'pending' },
+    { id: 'arjun', name: 'Arjun', initials: 'A', upi: 'arjun@upi', settlementStatus: 'pending' },
+    { id: 'riya', name: 'Riya', initials: 'R', upi: 'riya@icici', settlementStatus: 'pending' },
+    { id: 'kabir', name: 'Kabir', initials: 'K', upi: 'kabir@ybl', settlementStatus: 'pending' },
   ],
   menu: [
     { id: 'wrap', name: 'Paneer Tikka Wrap', description: 'Smoky paneer · mint chutney', price: 229, emoji: '🌯' },
@@ -19,7 +21,6 @@ const state = {
     { id: 3, menuId: 'pizza', owner: 'riya', qty: 1 },
     { id: 4, menuId: 'fries', owner: 'shared', qty: 1 },
   ],
-  paymentRequested: false,
 };
 
 function escapeHtml(value) {
@@ -37,6 +38,29 @@ const cartSubtotal = () => state.cart.reduce((sum, cartItem) => sum + (itemFor(c
 const fees = () => state.cart.length ? 57 : 0;
 const discount = () => state.birthdayMode && cartSubtotal() ? Math.min(150, Math.round(cartSubtotal() * 0.2)) : 0;
 const total = () => Math.max(0, cartSubtotal() + fees() - discount());
+
+function ensureHost() {
+  if (!state.people.length) return false;
+  if (!state.people.some((p) => p.host)) {
+    state.people[0].host = true;
+  }
+  return true;
+}
+
+const currentUserId = () => {
+  const host = state.people.find((p) => p.host);
+  return host ? host.id : (state.people[0]?.id || 'host');
+};
+
+function birthdayEligible() {
+  if (!state.hostDob) return false;
+  const today = new Date();
+  const parts = state.hostDob.split('-');
+  if (parts.length !== 3) return false;
+  const dobMonth = parseInt(parts[1], 10) - 1;
+  const dobDay = parseInt(parts[2], 10);
+  return today.getMonth() === dobMonth && today.getDate() === dobDay;
+}
 
 function itemValueFor(personId) {
   if (!state.people.length) return 0;
@@ -141,6 +165,14 @@ function renderSummary() {
   document.querySelector('#birthdaySaving').textContent = state.birthdayMode ? `${money(discount())} reward` : 'Party mode off';
   document.querySelector('#birthdayCard').classList.toggle('off', !state.birthdayMode);
   document.querySelector('#birthdayToggle').checked = state.birthdayMode;
+  const eligEl = document.querySelector('#birthdayEligibility');
+  if (birthdayEligible()) {
+    eligEl.textContent = state.birthdayApplied ? '✓ Applied' : '✓ Eligible today';
+    eligEl.className = 'birthday-eligibility eligible';
+  } else {
+    eligEl.textContent = state.hostDob ? 'Not eligible today' : 'No DOB set';
+    eligEl.className = 'birthday-eligibility not-eligible';
+  }
   document.querySelector('#splitNote').textContent = state.splitType === 'exact'
     ? 'Items, fees and savings are shared fairly by what each person added.'
     : 'The final order amount is divided evenly between everyone in the group.';
@@ -150,19 +182,70 @@ function renderSummary() {
     button.setAttribute('aria-checked', active);
   });
   const amounts = splitAmounts();
-  document.querySelector('#shareList').innerHTML = state.people.map((person, index) => `
-    <div class="share-row" data-person-share="${escapeHtml(person.id)}" title="Click to copy settlement summary for ${escapeHtml(person.name)}">
+  document.querySelector('#shareList').innerHTML = state.people.map((person, index) => {
+    const isHost = person.host;
+    let actionBtn = '';
+    if (isHost) {
+      actionBtn = `<span class="pay-status host-badge">HOST</span>`;
+    } else {
+      const status = person.settlementStatus || 'pending';
+      if (status === 'paid') {
+        actionBtn = `<span class="pay-status paid">✓ Paid</span>`;
+      } else if (status === 'requested') {
+        actionBtn = `<span class="pay-status requested" data-copy-share="${escapeHtml(person.id)}" role="button" tabindex="0">Copy UPI</span><button class="mark-paid" data-mark-paid="${escapeHtml(person.id)}" type="button" aria-label="Mark ${escapeHtml(person.name)} as paid">✓</button>`;
+      } else {
+        actionBtn = `<button type="button" class="pay-status" data-copy-share="${escapeHtml(person.id)}">Request</button>`;
+      }
+    }
+    return `<div class="share-row" data-person-share="${escapeHtml(person.id)}">
       <span class="share-avatar">${escapeHtml(person.initials)}</span>
       <div class="share-person">
-        <strong>${escapeHtml(person.name)}${person.host ? ' · host' : ''}</strong>
+        <strong>${escapeHtml(person.name)}${isHost ? ' · host' : ''}</strong>
         <small>${state.splitType === 'equal' ? 'Equal share' : itemValueFor(person.id) ? 'Items + shared costs' : 'Shared costs only'}</small>
       </div>
       <strong>${money(amounts[index])}</strong>
-      ${person.host ? '' : `<button type="button" class="pay-status ${state.paymentRequested ? 'requested' : ''}" data-copy-share="${escapeHtml(person.id)}">${state.paymentRequested ? 'Copy UPI' : 'Request'}</button>`}
-    </div>`).join('');
+      ${actionBtn}
+    </div>`;
+  }).join('');
 }
 
-function render() { renderPeople(); renderMenu(); renderCart(); renderSummary(); }
+function render() {
+  if (!state.people.length) {
+    document.querySelector('#peopleGrid').innerHTML = '<p class="empty-cart">No one is in the group yet. Add a friend above.</p>';
+    document.querySelector('#peopleCount').textContent = '0 people';
+    document.querySelector('#checkoutButton').disabled = true;
+    document.querySelector('#checkoutButton').style.opacity = '0.4';
+    return;
+  }
+  document.querySelector('#checkoutButton').disabled = false;
+  document.querySelector('#checkoutButton').style.opacity = '1';
+  ensureHost();
+
+  // Clean up cart items whose owner no longer exists
+  const validIds = new Set(state.people.map((p) => p.id));
+  validIds.add('shared');
+  state.cart.forEach((ci) => {
+    if (!validIds.has(ci.owner)) {
+      ci.owner = currentUserId();
+    }
+  });
+
+  // Warn if group is very large
+  if (state.people.length > 12) {
+    const existing = document.querySelector('#groupWarning');
+    if (!existing) {
+      const warn = document.createElement('p');
+      warn.id = 'groupWarning';
+      warn.className = 'limit-note';
+      warn.textContent = 'Large group — ensure everyone has contributed before checking out.';
+      document.querySelector('#peopleGrid').after(warn);
+    }
+  } else {
+    document.querySelector('#groupWarning')?.remove();
+  }
+
+  renderPeople(); renderMenu(); renderCart(); renderSummary();
+}
 
 function toast(message) {
   const node = document.querySelector('#toast');
@@ -176,10 +259,12 @@ document.addEventListener('click', (event) => {
   const addButton = event.target.closest('[data-menu-id]');
   if (addButton) {
     const menuId = addButton.dataset.menuId;
-    const existing = state.cart.find((cartItem) => cartItem.menuId === menuId && cartItem.owner === 'rushi');
+    const uid = currentUserId();
+    const existing = state.cart.find((cartItem) => cartItem.menuId === menuId && cartItem.owner === uid);
     if (existing) existing.qty += 1;
-    else state.cart.push({ id: Date.now(), menuId, owner: 'rushi', qty: 1 });
-    render(); toast('Added to Rushi’s order'); return;
+    else state.cart.push({ id: Date.now(), menuId, owner: uid, qty: 1 });
+    const hostName = state.people.find((p) => p.host)?.name || 'Host';
+    render(); toast(`Added to ${hostName}'s order`); return;
   }
   const quantityButton = event.target.closest('[data-change-qty]');
   if (quantityButton) {
@@ -200,16 +285,30 @@ document.addEventListener('click', (event) => {
     event.stopPropagation();
     const personId = copyShareButton.dataset.copyShare;
     const person = state.people.find((p) => p.id === personId);
+    if (!person) return;
     const idx = state.people.findIndex((p) => p.id === personId);
     const amount = splitAmounts()[idx];
     const host = state.people.find((p) => p.host) || state.people[0];
-    const text = `Hey ${person.name}! Your share for Friday Feast on Splitly is ${money(amount)}. Pay ${host.name} via UPI (${host.upi || 'rushi@okaxis'}).`;
+    const fallbackUpi = state.people.find((p) => p.host)?.upi || 'host@upi';
+    const text = `Hey ${person.name}! Your share for Friday Feast on Splitly is ${money(amount)}. Pay ${host.name} via UPI (${host.upi || fallbackUpi}).`;
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).catch(() => {});
     }
-    state.paymentRequested = true;
+    person.settlementStatus = 'requested';
     render();
-    toast(`Copied UPI summary for ${person.name}`);
+    toast(`UPI request sent to ${person.name}`);
+    return;
+  }
+
+  // Mark as paid
+  const markPaidButton = event.target.closest('[data-mark-paid]');
+  if (markPaidButton) {
+    const personId = markPaidButton.dataset.markPaid;
+    const person = state.people.find((p) => p.id === personId);
+    if (!person) return;
+    person.settlementStatus = 'paid';
+    render();
+    toast(`${person.name} marked as paid`);
     return;
   }
 });
@@ -221,21 +320,52 @@ document.addEventListener('change', (event) => {
   }
 });
 
-document.querySelector('#birthdayToggle').addEventListener('change', (event) => { state.birthdayMode = event.target.checked; render(); toast(state.birthdayMode ? 'Birthday reward added to the order' : 'Birthday reward removed'); });
+document.querySelector('#birthdayToggle').addEventListener('change', (event) => {
+  state.birthdayMode = event.target.checked;
+  if (state.birthdayMode) {
+    if (!birthdayEligible()) {
+      toast('Birthday not eligible — host\'s birthday is not today');
+      state.birthdayMode = false;
+      render();
+      return;
+    }
+    if (state.birthdayApplied) {
+      toast('Birthday reward already applied this order');
+      state.birthdayMode = false;
+      render();
+      return;
+    }
+    state.birthdayApplied = true;
+    toast('🎂 Birthday reward applied!');
+  } else {
+    toast('Birthday reward removed');
+  }
+  render();
+});
 document.querySelector('#requestButton').addEventListener('click', () => {
   if (!state.cart.length) { toast('Add food before sending payment requests'); return; }
-  state.paymentRequested = true; render(); toast('UPI payment requests sent to your crew (demo)');
+  if (!state.people.length) { toast('No one is in the group yet'); return; }
+  ensureHost();
+  const host = state.people.find((p) => p.host);
+  if (!host) { toast('No host assigned to receive payments'); return; }
+  state.people.forEach((p) => { if (!p.host && p.settlementStatus === 'pending') p.settlementStatus = 'requested'; });
+  render(); toast('UPI payment requests sent to your crew (demo)');
 });
 document.querySelector('#inviteButton').addEventListener('click', () => toast('Invite link copied: splitly.app/join/friday-feast (demo)'));
 document.querySelector('#addFriendButton').addEventListener('click', () => {
   const name = window.prompt('Friend’s name');
   if (!name || !name.trim()) return;
-  const cleanName = name.trim().slice(0, 18);
-  state.people.push({ id: `${cleanName.toLowerCase()}-${Date.now()}`, name: cleanName, initials: cleanName.slice(0, 1).toUpperCase() });
-  render(); toast(`${cleanName} joined Friday Feast`);
+  const cleanName = name.trim();
+  if (cleanName.length > 18) {
+    toast('Name too long — using first 18 characters');
+  }
+  const shortName = cleanName.slice(0, 18);
+  state.people.push({ id: `${shortName.toLowerCase()}-${Date.now()}`, name: shortName, initials: shortName.slice(0, 1).toUpperCase(), host: false, upi: '', settlementStatus: 'pending' });
+  render(); toast(`${shortName} joined Friday Feast`);
 });
 document.querySelector('#checkoutButton').addEventListener('click', () => {
   if (!state.cart.length) { toast('Your cart is empty — add items first'); return; }
+  if (!cartSubtotal()) { toast('Your cart subtotal is zero — add items before checkout'); return; }
   if (total() > 1000) { toast('This demo stays within the ₹1,000 Builder order limit'); return; }
   openCheckout();
 });
@@ -253,6 +383,39 @@ const step3    = document.querySelector('#checkoutStep3');
 
 let selectedPayment = 'ONLINE';
 
+/* ── Focus trap helper ── */
+function trapFocus(element) {
+  releaseTrap();
+  const prev = document.activeElement;
+  const focusable = element.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  function handler(e) {
+    if (e.key !== 'Tab' || !overlay.classList.contains('open')) return;
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+  document.addEventListener('keydown', handler);
+  overlay._focusTrap = handler;
+  overlay._prevFocus = prev;
+  if (first) first.focus();
+}
+
+function releaseTrap() {
+  if (overlay._focusTrap) {
+    document.removeEventListener('keydown', overlay._focusTrap);
+    delete overlay._focusTrap;
+  }
+  if (overlay._prevFocus) {
+    delete overlay._prevFocus;
+  }
+}
+
+const announceEl = document.querySelector('#checkoutAnnounce');
+function announceCheckout(message) {
+  if (announceEl) announceEl.textContent = message;
+}
+
 /* ── Open / close ── */
 function openCheckout() {
   selectedPayment = 'ONLINE';
@@ -261,12 +424,15 @@ function openCheckout() {
   overlay.classList.add('open');
   overlay.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
+  trapFocus(overlay);
+  announceCheckout('Checkout opened — review your order');
 }
 
 function closeCheckout() {
   overlay.classList.remove('open');
   overlay.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+  releaseTrap();
 }
 
 document.querySelector('#closeModal').addEventListener('click', closeCheckout);
@@ -355,6 +521,7 @@ document.querySelector('#confirmOrder').addEventListener('click', () => {
 async function runMcpSimulation() {
   const mcpLog = document.querySelector('#mcpLog');
   const paymentLabel = selectedPayment === 'COD' ? 'Cash on Delivery' : 'Online / UPI';
+  announceCheckout('Processing your Swiggy order');
 
   // Build the mock MCP responses aligned with the real Swiggy MCP response shape
   const mcpSteps = [
@@ -432,7 +599,8 @@ async function runMcpSimulation() {
   }
 
   // All steps done — build the success view
-  const placeResponse = mcpSteps[1].response;
+  const placeStep = mcpSteps.find((s) => s.tool === 'place_food_order');
+  const placeResponse = placeStep ? placeStep.response : { data: { orderId: 'SW-000000', estimatedDelivery: '30 min' }, message: '' };
   await sleep(500);
 
   // Populate success state
@@ -467,13 +635,14 @@ async function runMcpSimulation() {
   progressSteps[1].classList.remove('current');
   progressSteps[2].classList.add('current');
 
-  // If UPI was selected, also update payment status
+  // If UPI was selected, mark non-host members as requested
   if (selectedPayment === 'ONLINE') {
-    state.paymentRequested = true;
+    state.people.forEach((p) => { if (!p.host && p.settlementStatus === 'pending') p.settlementStatus = 'requested'; });
     renderSummary();
   }
 
   showStep(step3);
+  announceCheckout('Order placed successfully. Check your order details.');
 }
 
 /* Track order button — simulates opening Swiggy tracking */

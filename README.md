@@ -2,9 +2,7 @@
 
 **Splitly** is a high-fidelity prototype designed for students and groups to eliminate the "awkward math" of group food ordering. Built as a showcase for the **Swiggy Builders Club**, it integrates the concept of AI-native commerce infrastructure into a seamless, social ordering experience.
 
-![Splitly Preview](https://mcp.swiggy.com/builders/docs/index.md) <!-- Placeholder for actual screenshot if available -->
 
----
 
 ## ✨ Core Features
 
@@ -26,8 +24,8 @@ A dedicated social feature that celebrates the host:
 ### 🤖 Swiggy MCP Simulation
 The prototype demonstrates a sophisticated integration boundary with the **Swiggy Builders MCP (Model Context Protocol)**. It simulates the end-to-end journey of a professional AI agent:
 1. `get_food_cart` $\rightarrow$ Review current items and payment methods.
-2. `update_food_cart` $\rightarrow$ Synchronize group selections with the Swiggy backend.
-3. `place_food_order` $\rightarrow$ Finalize the order on behalf of the host.
+2. `place_food_order` $\rightarrow$ Finalize the order on behalf of the host.
+3. `track_food_order` $\rightarrow$ Get initial delivery status and ETA.
 
 ---
 
@@ -39,6 +37,8 @@ The prototype demonstrates a sophisticated integration boundary with the **Swigg
 - **Architecture**: State-driven rendering loop ensuring a single source of truth for the cart and splits.
 
 ---
+
+> **Note:** The checkout demo enforces a **₹1,000 Builder order limit** as a safety guardrail. Orders exceeding this will be blocked with a friendly message.
 
 ## 🚀 Getting Started
 
