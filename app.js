@@ -790,7 +790,9 @@ async function runPlannerSimulation() {
     (opt) => {
       if (!opt.slots.length) return { ok: false, reason: 'No available slots' };
       if (!opt.free) return { ok: false, reason: 'Paid deals not supported' };
-      return { ok: true, cost: Math.round(opt.costForTwo * state.people.length / 2) };
+      const cost = Math.round(opt.costForTwo * state.people.length / 2);
+      if (cost > remaining) return { ok: false, reason: `₹${cost} exceeds remaining ₹${remaining}` };
+      return { ok: true, cost };
     },
     'Dineout'
   );
