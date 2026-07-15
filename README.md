@@ -123,5 +123,29 @@ When evaluating the prototype, try the following flows:
 
 ---
 
+## 💡 Why This Matters for Swiggy
+
+Splitly demonstrates how group ordering can drive key Swiggy business metrics:
+
+- **Higher AOV (Average Order Value)**: Group orders naturally include more items per transaction. The per-person budget cap encourages each member to add items without hesitation.
+- **Campus Virality**: The "Invite friends" flow and shared bill splitting create organic word-of-mouth. Every Splitly session is a Swiggy touchpoint shared across a social circle.
+- **Birthday Campaign Activation**: The Birthday Party Mode showcases how Swiggy can drive engagement through celebration-based rewards — turning personal milestones into order triggers.
+- **Multi-Service Upsell**: The architecture supports orchestration across Food, Instamart, and Dineout, enabling bundled experiences (dinner + groceries + table booking) that increase platform stickiness.
+- **UPI Settlement Loop**: Native UPI request integration keeps payment flows within the Swiggy ecosystem rather than leaking to external payment apps.
+
+---
+
+## 🔧 MCP Integration Note
+
+Splitly simulates the **Swiggy MCP (Model Context Protocol)** tool-call sequence for food delivery:
+
+1. **`get_food_cart`** — Validates cart contents, computes totals, and returns `availablePaymentMethods`
+2. **`place_food_order`** — Submits the order with `addressId` and `paymentMethod` (ONLINE / COD)
+3. **`track_food_order`** — Returns live order status, ETA, and restaurant confirmation
+
+The MCP log in the checkout modal shows real-time simulation of these three tool calls with realistic latency. Response shapes match the [official Swiggy MCP documentation](https://mcp.swiggy.com/builders/docs/reference/food).
+
+---
+
 ## 📜 License
 Developed for the **[Swiggy Builders Club](https://mcp.swiggy.com/builders)** ecosystem.

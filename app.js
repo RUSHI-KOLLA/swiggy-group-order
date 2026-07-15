@@ -757,6 +757,9 @@ async function runMcpSimulation() {
   const paymentLabel = selectedPayment === 'COD' ? 'Cash on Delivery' : 'Online / UPI';
   announceCheckout('Processing your Swiggy order');
 
+  // Guard: bail if modal was closed before simulation started
+  if (!overlay.classList.contains('open')) return;
+
   // Build the mock MCP responses aligned with the real Swiggy MCP response shape
   const mcpSteps = [
     {
@@ -804,6 +807,9 @@ async function runMcpSimulation() {
   mcpLog.innerHTML = '';
 
   for (let i = 0; i < mcpSteps.length; i++) {
+    // Guard: stop if modal was closed mid-simulation
+    if (!overlay.classList.contains('open')) return;
+
     const step = mcpSteps[i];
 
     // Add entry as "running"
@@ -833,6 +839,7 @@ async function runMcpSimulation() {
   }
 
   // All steps done — build the success view
+  if (!overlay.classList.contains('open')) return;
   const placeStep = mcpSteps.find((s) => s.tool === 'place_food_order');
   const placeResponse = placeStep ? placeStep.response : { data: { orderId: 'SW-000000', estimatedDelivery: '30 min' }, message: '' };
   await sleep(500);
