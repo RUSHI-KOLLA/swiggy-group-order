@@ -117,7 +117,7 @@ When evaluating the prototype, try the following flows:
 
 ## 🛡️ Safety & Guardrails
 - **₹1,000 Builder Demo Cap**: The interactive checkout enforces a maximum order value of ₹1,000.
-- **Per-Person Budget Cap**: Each crew member has a ₹1,000 budget limit (₹250/person for 4 people) to prevent overspending.
+  - **Per-Person Budget Share**: Each crew member gets a dynamic share of the group budget based on group size (e.g., ₹250/person for 4 people at a ₹1,000 total cap).
 - **XSS Sanitization**: All user-generated text (friend names, custom labels) is strictly escaped via `escapeHtml()`.
 - **Keyboard & Screen Reader Accessible**: Modals feature focus trapping, ARIA roles (`role="dialog"`, `aria-modal="true"`), and live polite announcements.
 

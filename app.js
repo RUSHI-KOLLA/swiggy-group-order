@@ -180,7 +180,9 @@ function renderMenu() {
     { id: 'drinks', label: 'Drinks & Desserts', emoji: '🥤' },
   ];
   const active = state.activeCuisine || 'all';
-  const filtered = active === 'all' ? state.menu : state.menu.filter((item) => item.cuisine === active || !item.cuisine);
+  const filtered = active === 'all'
+    ? state.menu
+    : state.menu.filter((item) => item.cuisine === active || item.cuisine === 'all-custom');
 
   const tabsEl = document.querySelector('#cuisineTabs');
   if (tabsEl) {
@@ -320,7 +322,7 @@ function renderSummary() {
       if (status === 'paid') {
         actionBtn = `<span class="pay-status paid">✓ Paid</span>`;
       } else if (status === 'requested') {
-        actionBtn = `<span class="pay-status requested" data-copy-share="${escapeHtml(person.id)}" role="button" tabindex="0">Copy UPI</span><button class="mark-paid" data-mark-paid="${escapeHtml(person.id)}" type="button" aria-label="Mark ${escapeHtml(person.name)} as paid">✓</button>`;
+        actionBtn = `<span class="pay-status requested" data-copy-share="${escapeHtml(person.id)}" role="button" tabindex="0">Copy UPI</span><button class="mark-paid" data-mark-paid="${escapeHtml(person.id)}" type="button" aria-label="Mark ${escapeHtml(person.name)} as paid (demo)">✓ Demo</button>`;
       } else {
         actionBtn = `<button type="button" class="pay-status" data-copy-share="${escapeHtml(person.id)}">Request</button>`;
       }
@@ -585,6 +587,9 @@ document.querySelector('#addCustomDishButton').addEventListener('click', () => {
     description: 'Custom added dish',
     price,
     emoji,
+    cuisine: 'all-custom',
+    veg: true,
+    restaurant: 'Custom',
   });
   render();
   toast(`Added "${name}" (₹${price}) to menu`);
