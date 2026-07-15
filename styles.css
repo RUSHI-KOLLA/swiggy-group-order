@@ -397,3 +397,72 @@ h2 { font-size: 23px; margin-bottom: 0; }
   .modal-btn.primary { width: 100%; justify-content: center; margin-left: 0; }
   .modal-btn.secondary { width: 100%; justify-content: center; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Individual Ordering — Person switching & budget caps
+   ═══════════════════════════════════════════════════════════ */
+
+/* Active person card */
+.person-card { cursor: pointer; transition: border-color .2s, box-shadow .2s, transform .15s; }
+.person-card:hover { border-color: #c5d4c0; transform: translateY(-1px); }
+.person-card.active-orderer { border-color: var(--green); box-shadow: 0 0 0 3px rgba(26,122,77,.12); background: #f0f9ee; }
+
+/* "ORDERING" tag */
+.ordering-tag { display: inline-block; background: var(--green); color: white; font-size: 8px; font-weight: 700; letter-spacing: .8px; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 4px; }
+
+/* Per-person budget bar inside person cards */
+.person-budget { margin-top: 8px; }
+.budget-bar { height: 4px; background: #e8e7df; border-radius: 99px; overflow: hidden; }
+.budget-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width .3s ease; }
+.budget-fill.over { background: var(--red); }
+.budget-text { display: block; margin-top: 4px; font-size: 10px; font-weight: 600; color: var(--muted); }
+.budget-text.over { color: var(--red); }
+
+/* Budget cap row */
+.budget-cap-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding: 10px 14px; background: #f4f9ef; border: 1px solid #d6e9c7; border-radius: 10px; }
+.budget-cap-row label { font-size: 12px; font-weight: 700; color: var(--green); white-space: nowrap; }
+.cap-input-wrap { display: flex; align-items: center; gap: 2px; }
+.cap-input-wrap span { font-size: 14px; font-weight: 700; color: var(--muted); }
+.cap-input-wrap input { width: 72px; border: 1.5px solid var(--line); border-radius: 7px; padding: 5px 8px; font-size: 14px; font-weight: 700; color: var(--ink); background: white; outline: none; }
+.cap-input-wrap input:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(26,122,77,.1); }
+.cap-per-person { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+
+/* Ordering banner */
+.ordering-banner { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(135deg, #f0f9ee, #e8f5e0); border: 1px solid #c5e2b8; border-radius: 12px; margin-bottom: 25px; font-size: 13px; font-weight: 500; }
+.ordering-banner:empty { display: none; }
+.banner-avatar { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--green); font-size: 11px; font-weight: 700; flex: 0 0 28px; }
+.banner-budget { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--green); white-space: nowrap; }
+.banner-budget.over { color: var(--red); }
+
+@media (max-width: 620px) {
+  .budget-cap-row { flex-wrap: wrap; gap: 8px; }
+  .cap-per-person { margin-left: 0; }
+  .ordering-banner { font-size: 12px; padding: 10px 12px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Dynamic Menu & AI Suggestions UI
+   ═══════════════════════════════════════════════════════════ */
+
+/* Cuisine filter tabs */
+.cuisine-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px; scrollbar-width: none; }
+.cuisine-tabs::-webkit-scrollbar { display: none; }
+.cuisine-tab { border: 1.5px solid var(--line); background: white; color: var(--ink); padding: 7px 14px; border-radius: 99px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s ease; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.cuisine-tab:hover { border-color: #c5d4c0; background: #f9fbf8; }
+.cuisine-tab.active { background: var(--ink); color: white; border-color: var(--ink); box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+
+/* Menu meta (Restaurant & Veg/Non-veg) */
+.menu-item { position: relative; display: flex; flex-direction: column; }
+.menu-item h3 { margin-top: 4px; }
+.ai-badge { align-self: flex-start; background: linear-gradient(135deg, #fff3d1, #ffe38f); color: #8c6400; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 6px; margin-bottom: 4px; border: 1px solid #ffd15c; }
+.menu-meta { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 8px; font-size: 11px; color: var(--muted); font-weight: 600; }
+.restaurant-src { background: #f0f2ef; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+.veg-dot, .nonveg-dot { font-size: 8px; }
+
+/* AI Suggestion Card */
+.ai-card { background: linear-gradient(135deg, #fefae0, #fff3b0); border: 1.5px solid #f2e394; border-radius: 14px; padding: 14px 18px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(224, 180, 0, 0.08); }
+.ai-card-header { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #8c6400; display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.ai-sparkle { font-size: 14px; }
+.ai-suggestion { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; font-weight: 600; color: #523d00; padding: 6px 0; border-top: 1px solid rgba(140, 100, 0, 0.1); line-height: 1.4; }
+.ai-suggestion:first-of-type { border-top: none; padding-top: 2px; }
+.ai-suggestion span:first-child { font-size: 15px; flex-shrink: 0; }

@@ -1,26 +1,54 @@
+const getTodayString = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+const generateId = (prefix = 'id') => {
+  return typeof crypto !== 'undefined' && crypto.randomUUID
+    ? `${prefix}-${crypto.randomUUID()}`
+    : `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+};
+
 const state = {
   splitType: 'exact',
+  activePerson: 'rushi',
+  budgetCap: 1000,
   birthdayMode: false,
   birthdayApplied: false,
-  hostDob: '1999-06-15',
+  hostDob: getTodayString(),
   people: [
     { id: 'rushi', name: 'Rushi', initials: 'R', host: true, upi: 'rushi@okaxis', settlementStatus: 'pending' },
     { id: 'arjun', name: 'Arjun', initials: 'A', upi: 'arjun@upi', settlementStatus: 'pending' },
     { id: 'riya', name: 'Riya', initials: 'R', upi: 'riya@icici', settlementStatus: 'pending' },
     { id: 'kabir', name: 'Kabir', initials: 'K', upi: 'kabir@ybl', settlementStatus: 'pending' },
   ],
+  activeCuisine: 'all',
   menu: [
-    { id: 'wrap', name: 'Paneer Tikka Wrap', description: 'Smoky paneer · mint chutney', price: 229, emoji: '🌯' },
-    { id: 'biryani', name: 'Chicken Biryani', description: 'Hyderabadi style · raita included', price: 319, emoji: '🍛' },
-    { id: 'pizza', name: 'Margherita Pizza', description: 'Classic cheese · basil', price: 299, emoji: '🍕' },
-    { id: 'fries', name: 'Loaded Cheesy Fries', description: 'Cheese sauce · jalapeños', price: 149, emoji: '🍟' },
+    // North Indian
+    { id: 'wrap', name: 'Paneer Tikka Wrap', description: 'Smoky paneer · mint chutney', price: 229, emoji: '🌯', cuisine: 'north-indian', veg: true, restaurant: 'Spice & Slice' },
+    { id: 'biryani', name: 'Chicken Biryani', description: 'Hyderabadi style · raita included', price: 319, emoji: '🍛', cuisine: 'north-indian', veg: false, restaurant: 'Spice & Slice' },
+    { id: 'dal-makhani', name: 'Dal Makhani + Naan', description: 'Creamy black lentils · butter naan', price: 199, emoji: '🫓', cuisine: 'north-indian', veg: true, restaurant: 'Spice & Slice' },
+    { id: 'butter-chicken', name: 'Butter Chicken', description: 'Rich tomato gravy · tender chicken', price: 289, emoji: '🍗', cuisine: 'north-indian', veg: false, restaurant: 'Spice & Slice', aiPick: true },
+    { id: 'veg-thali', name: 'Veg Thali', description: 'Dal · sabzi · roti · rice · papad', price: 179, emoji: '🥘', cuisine: 'north-indian', veg: true, restaurant: 'Spice & Slice', aiPick: true },
+    // Chinese
+    { id: 'manchurian', name: 'Veg Manchurian', description: 'Crispy veg balls · spicy sauce', price: 189, emoji: '🥡', cuisine: 'chinese', veg: true, restaurant: 'Dragon Bowl' },
+    { id: 'fried-rice', name: 'Chicken Fried Rice', description: 'Wok-tossed · egg · veggies', price: 219, emoji: '🍚', cuisine: 'chinese', veg: false, restaurant: 'Dragon Bowl' },
+    { id: 'noodles', name: 'Hakka Noodles', description: 'Stir-fried · vegetables · soy', price: 169, emoji: '🍜', cuisine: 'chinese', veg: true, restaurant: 'Dragon Bowl' },
+    { id: 'chilli-paneer', name: 'Chilli Paneer', description: 'Indo-Chinese · bell peppers', price: 199, emoji: '🌶️', cuisine: 'chinese', veg: true, restaurant: 'Dragon Bowl' },
+    { id: 'spring-rolls', name: 'Spring Rolls (6pc)', description: 'Crispy · mixed veg filling', price: 129, emoji: '🥟', cuisine: 'chinese', veg: true, restaurant: 'Dragon Bowl' },
+    // Pizza & Snacks
+    { id: 'pizza', name: 'Margherita Pizza', description: 'Classic cheese · fresh basil', price: 299, emoji: '🍕', cuisine: 'fast-food', veg: true, restaurant: 'Quick Bites' },
+    { id: 'fries', name: 'Loaded Cheesy Fries', description: 'Cheese sauce · jalapeños', price: 149, emoji: '🍟', cuisine: 'fast-food', veg: true, restaurant: 'Quick Bites', aiPick: true },
+    { id: 'burger', name: 'Chicken Burger', description: 'Grilled patty · lettuce · mayo', price: 179, emoji: '🍔', cuisine: 'fast-food', veg: false, restaurant: 'Quick Bites' },
+    { id: 'garlic-bread', name: 'Garlic Bread', description: 'Cheesy · herb butter · 4 slices', price: 119, emoji: '🥖', cuisine: 'fast-food', veg: true, restaurant: 'Quick Bites' },
+    { id: 'pasta', name: 'Pasta Alfredo', description: 'Creamy white sauce · mushrooms', price: 249, emoji: '🍝', cuisine: 'fast-food', veg: true, restaurant: 'Quick Bites' },
+    // Drinks & Desserts
+    { id: 'coke', name: 'Coke (750ml)', description: 'Chilled classic cola', price: 40, emoji: '🥤', cuisine: 'drinks', veg: true, restaurant: 'Quick Bites' },
+    { id: 'lassi', name: 'Mango Lassi', description: 'Thick · sweet · alphonso mango', price: 79, emoji: '🥛', cuisine: 'drinks', veg: true, restaurant: 'Spice & Slice' },
+    { id: 'gulab-jamun', name: 'Gulab Jamun (2pc)', description: 'Warm · sugar syrup · cardamom', price: 69, emoji: '🍯', cuisine: 'drinks', veg: true, restaurant: 'Spice & Slice' },
+    { id: 'brownie', name: 'Brownie Sundae', description: 'Warm brownie · vanilla ice cream', price: 129, emoji: '🍫', cuisine: 'drinks', veg: true, restaurant: 'Quick Bites' },
   ],
-  cart: [
-    { id: 1, menuId: 'wrap', owner: 'rushi', qty: 1 },
-    { id: 2, menuId: 'biryani', owner: 'arjun', qty: 1 },
-    { id: 3, menuId: 'pizza', owner: 'riya', qty: 1 },
-    { id: 4, menuId: 'fries', owner: 'shared', qty: 1 },
-  ],
+  cart: [],
 };
 
 function escapeHtml(value) {
@@ -38,6 +66,20 @@ const cartSubtotal = () => state.cart.reduce((sum, cartItem) => sum + (itemFor(c
 const fees = () => state.cart.length ? 57 : 0;
 const discount = () => state.birthdayMode && cartSubtotal() ? Math.min(150, Math.round(cartSubtotal() * 0.2)) : 0;
 const total = () => Math.max(0, cartSubtotal() + fees() - discount());
+const perPersonCap = () => state.people.length ? Math.floor(state.budgetCap / state.people.length) : state.budgetCap;
+
+function spentByPerson(personId) {
+  return state.cart.reduce((sum, ci) => {
+    const item = itemFor(ci);
+    if (!item) return sum;
+    const value = item.price * ci.qty;
+    if (ci.owner === personId) return sum + value;
+    if (ci.owner === 'shared') return sum + value / state.people.length;
+    return sum;
+  }, 0);
+}
+
+const remainingForPerson = (personId) => Math.max(0, perPersonCap() - Math.round(spentByPerson(personId)));
 
 function ensureHost() {
   if (!state.people.length) return false;
@@ -105,27 +147,109 @@ function splitAmounts() {
 }
 
 function renderPeople() {
-  document.querySelector('#peopleGrid').innerHTML = state.people.map((person) => `
-    <div class="person-card ${person.host ? 'host' : ''}">
+  const cap = perPersonCap();
+  document.querySelector('#peopleGrid').innerHTML = state.people.map((person) => {
+    const spent = Math.round(spentByPerson(person.id));
+    const pct = cap > 0 ? Math.min(100, (spent / cap) * 100) : 0;
+    const isActive = person.id === state.activePerson;
+    const overBudget = spent > cap;
+    return `
+    <div class="person-card ${person.host ? 'host' : ''} ${isActive ? 'active-orderer' : ''}" data-switch-person="${escapeHtml(person.id)}" role="button" tabindex="0" aria-label="Order as ${escapeHtml(person.name)}">
       <span class="person-avatar">${escapeHtml(person.initials)}</span>
       <div>
-        <div class="person-name">${escapeHtml(person.name)}</div>
+        <div class="person-name">${escapeHtml(person.name)}${isActive ? ' <span class="ordering-tag">ORDERING</span>' : ''}</div>
         ${person.host ? '<span class="host-tag">HOST · ' + escapeHtml(person.upi || 'UPI') + '</span>' : ''}
       </div>
-    </div>`).join('');
+      <div class="person-budget">
+        <div class="budget-bar"><div class="budget-fill ${overBudget ? 'over' : ''}" style="width:${pct}%"></div></div>
+        <span class="budget-text ${overBudget ? 'over' : ''}">₹${spent} / ₹${cap}</span>
+      </div>
+    </div>`;
+  }).join('');
   document.querySelector('#peopleCount').textContent = `${state.people.length} ${state.people.length === 1 ? 'person' : 'people'}`;
+  const capEl = document.querySelector('#capPerPerson');
+  if (capEl) capEl.textContent = `₹${cap} / person`;
 }
 
 function renderMenu() {
-  document.querySelector('#menuGrid').innerHTML = state.menu.map((item) => `
+  const cuisines = [
+    { id: 'all', label: 'All', emoji: '🍽️' },
+    { id: 'north-indian', label: 'North Indian', emoji: '🍛' },
+    { id: 'chinese', label: 'Chinese', emoji: '🍜' },
+    { id: 'fast-food', label: 'Pizza & Snacks', emoji: '🍕' },
+    { id: 'drinks', label: 'Drinks & Desserts', emoji: '🥤' },
+  ];
+  const active = state.activeCuisine || 'all';
+  const filtered = active === 'all' ? state.menu : state.menu.filter((item) => item.cuisine === active || !item.cuisine);
+
+  const tabsEl = document.querySelector('#cuisineTabs');
+  if (tabsEl) {
+    tabsEl.innerHTML = cuisines.map((c) =>
+      `<button class="cuisine-tab ${c.id === active ? 'active' : ''}" data-cuisine="${c.id}" type="button">${c.emoji} ${c.label}</button>`
+    ).join('');
+  }
+
+  document.querySelector('#menuGrid').innerHTML = filtered.map((item) => `
     <article class="menu-item" data-emoji="${escapeHtml(item.emoji)}">
+      ${item.aiPick ? '<span class="ai-badge">✨ AI Pick</span>' : ''}
       <h3>${escapeHtml(item.name)}</h3>
       <p>${escapeHtml(item.description)}</p>
+      <div class="menu-meta">
+        <span class="restaurant-src">${escapeHtml(item.restaurant || '')}</span>
+        ${item.veg ? '<span class="veg-dot">🟢</span>' : '<span class="nonveg-dot">🔴</span>'}
+      </div>
       <div class="menu-footer">
         <strong>${money(item.price)}</strong>
         <button class="add-item" data-menu-id="${escapeHtml(item.id)}" type="button" aria-label="Add ${escapeHtml(item.name)}">+</button>
       </div>
     </article>`).join('');
+}
+
+/* ── AI Suggestion Engine (rule-based) ── */
+function getAISuggestions() {
+  const suggestions = [];
+  const person = state.people.find((p) => p.id === state.activePerson);
+  if (!person) return suggestions;
+  const myItems = state.cart.filter((ci) => ci.owner === state.activePerson);
+  const allItems = state.cart;
+  const remaining = remainingForPerson(state.activePerson);
+
+  if (myItems.length === 0) {
+    suggestions.push({ icon: '👋', text: `${person.name}, start by picking your favorites! Try the Butter Chicken or Veg Thali.` });
+  }
+  const unordered = state.people.filter((p) => !state.cart.some((ci) => ci.owner === p.id));
+  if (unordered.length > 0 && unordered.length < state.people.length) {
+    suggestions.push({ icon: '📢', text: `${unordered.map((p) => p.name).join(', ')} hasn’t picked anything yet — nudge them!` });
+  }
+  if (allItems.some((ci) => ci.menuId === 'biryani') && !allItems.some((ci) => ci.menuId === 'lassi')) {
+    suggestions.push({ icon: '🥛', text: 'Pair your Biryani with a Mango Lassi (₹79)?' });
+  }
+  if (allItems.some((ci) => ['pizza', 'burger', 'fries'].includes(ci.menuId)) && !allItems.some((ci) => ['coke', 'lassi'].includes(ci.menuId))) {
+    suggestions.push({ icon: '🥤', text: 'Add a Coke (₹40) to go with your meal?' });
+  }
+  if (remaining > 0 && remaining < 200 && myItems.length > 0) {
+    const affordable = state.menu.filter((m) => m.price <= remaining).sort((a, b) => b.price - a.price);
+    if (affordable.length) suggestions.push({ icon: '💡', text: `₹${remaining} left — try ${affordable[0].name} (₹${affordable[0].price})?` });
+  }
+  if (allItems.length >= 2 && !allItems.some((ci) => ci.owner === 'shared')) {
+    suggestions.push({ icon: '🤝', text: 'Share some Loaded Fries (₹149)? Split ' + state.people.length + ' ways = ₹' + Math.round(149 / state.people.length) + ' each!' });
+  }
+  if (myItems.length >= 2 && !allItems.some((ci) => ['gulab-jamun', 'brownie'].includes(ci.menuId))) {
+    suggestions.push({ icon: '🍰', text: 'Finish with something sweet — Gulab Jamun (₹69) or Brownie Sundae (₹129)!' });
+  }
+  return suggestions.slice(0, 2);
+}
+
+function renderAISuggestions() {
+  const container = document.querySelector('#aiSuggestions');
+  if (!container) return;
+  const suggestions = getAISuggestions();
+  if (!suggestions.length) { container.innerHTML = ''; return; }
+  container.innerHTML = `
+    <div class="ai-card">
+      <div class="ai-card-header"><span class="ai-sparkle">✨</span> AI Suggestions</div>
+      ${suggestions.map((s) => `<div class="ai-suggestion"><span>${s.icon}</span><span>${s.text}</span></div>`).join('')}
+    </div>`;
 }
 
 function ownerOptions(selected) {
@@ -213,6 +337,20 @@ function renderSummary() {
   }).join('');
 }
 
+function renderOrderingBanner() {
+  const banner = document.querySelector('#orderingBanner');
+  if (!banner) return;
+  const person = state.people.find((p) => p.id === state.activePerson);
+  if (!person) { banner.innerHTML = ''; return; }
+  const spent = Math.round(spentByPerson(person.id));
+  const cap = perPersonCap();
+  const remaining = Math.max(0, cap - spent);
+  banner.innerHTML = `
+    <span class="banner-avatar">${escapeHtml(person.initials)}</span>
+    <span>Ordering as <strong>${escapeHtml(person.name)}</strong></span>
+    <span class="banner-budget ${remaining <= 0 ? 'over' : ''}">₹${remaining} left of ₹${cap}</span>`;
+}
+
 function render() {
   if (!state.people.length) {
     document.querySelector('#peopleGrid').innerHTML = '<p class="empty-cart">No one is in the group yet. Add a friend above.</p>';
@@ -224,6 +362,9 @@ function render() {
   document.querySelector('#checkoutButton').disabled = false;
   document.querySelector('#checkoutButton').style.opacity = '1';
   ensureHost();
+  if (!state.people.some((p) => p.id === state.activePerson)) {
+    state.activePerson = state.people[0]?.id || 'rushi';
+  }
 
   // Dynamic host info in hero
   const host = state.people.find((p) => p.host) || state.people[0];
@@ -258,7 +399,7 @@ function render() {
     document.querySelector('#groupWarning')?.remove();
   }
 
-  renderPeople(); renderMenu(); renderCart(); renderSummary();
+  renderPeople(); renderMenu(); renderCart(); renderSummary(); renderOrderingBanner(); renderAISuggestions();
 }
 
 function toast(message) {
@@ -270,15 +411,41 @@ function toast(message) {
 }
 
 document.addEventListener('click', (event) => {
+  const cuisineTab = event.target.closest('[data-cuisine]');
+  if (cuisineTab) {
+    state.activeCuisine = cuisineTab.dataset.cuisine;
+    renderMenu();
+    return;
+  }
+  const switchPerson = event.target.closest('[data-switch-person]');
+  if (switchPerson) {
+    const personId = switchPerson.dataset.switchPerson;
+    if (state.people.some((p) => p.id === personId)) {
+      state.activePerson = personId;
+      render();
+      toast(`Now ordering as ${state.people.find((p) => p.id === personId)?.name}`);
+    }
+    return;
+  }
   const addButton = event.target.closest('[data-menu-id]');
   if (addButton) {
     const menuId = addButton.dataset.menuId;
-    const uid = currentUserId();
+    const uid = state.activePerson;
+    const menuItem = state.menu.find((m) => m.id === menuId);
+    if (menuItem) {
+      const spent = Math.round(spentByPerson(uid));
+      const cap = perPersonCap();
+      if (spent + menuItem.price > cap) {
+        const pName = state.people.find((p) => p.id === uid)?.name || 'You';
+        toast(`${pName} would exceed ₹${cap} cap — can't add this`);
+        return;
+      }
+    }
     const existing = state.cart.find((cartItem) => cartItem.menuId === menuId && cartItem.owner === uid);
     if (existing) existing.qty += 1;
-    else state.cart.push({ id: Date.now(), menuId, owner: uid, qty: 1 });
-    const hostName = state.people.find((p) => p.host)?.name || 'Host';
-    render(); toast(`Added to ${hostName}'s order`); return;
+    else state.cart.push({ id: generateId('cart'), menuId, owner: uid, qty: 1 });
+    const personName = state.people.find((p) => p.id === uid)?.name || 'You';
+    render(); toast(`Added to ${personName}'s order`); return;
   }
   const quantityButton = event.target.closest('[data-change-qty]');
   if (quantityButton) {
@@ -329,18 +496,27 @@ document.addEventListener('click', (event) => {
   }
 });
 
-// Keyboard handler for role="button" elements (Copy UPI)
+// Keyboard handler for role="button" elements (Copy UPI + Person switching)
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
+  const switchBtn = e.target.closest('[data-switch-person]');
+  if (switchBtn) { e.preventDefault(); switchBtn.click(); return; }
   const btn = e.target.closest('[data-copy-share]');
   if (!btn) return;
   e.preventDefault();
   btn.click();
 });
 
+// Budget cap input
+document.querySelector('#budgetCapInput')?.addEventListener('input', (e) => {
+  state.budgetCap = Math.min(1000, Math.max(100, parseInt(e.target.value) || 1000));
+  render();
+});
+
 document.addEventListener('change', (event) => {
   if (event.target.matches('[data-owner-id]')) {
     const cartItem = state.cart.find((item) => String(item.id) === event.target.dataset.ownerId);
+    if (!cartItem) return;
     cartItem.owner = event.target.value; render();
   }
 });
@@ -363,6 +539,7 @@ document.querySelector('#birthdayToggle').addEventListener('change', (event) => 
     state.birthdayApplied = true;
     toast('🎂 Birthday reward applied!');
   } else {
+    state.birthdayApplied = false;
     toast('Birthday reward removed');
   }
   render();
@@ -384,9 +561,33 @@ document.querySelector('#addFriendButton').addEventListener('click', () => {
   if (cleanName.length > 18) {
     toast('Name too long — using first 18 characters');
   }
-  const shortName = cleanName.slice(0, 18);
-  state.people.push({ id: `${shortName.toLowerCase()}-${Date.now()}`, name: shortName, initials: shortName.slice(0, 1).toUpperCase(), host: false, upi: '', settlementStatus: 'pending' });
+  let shortName = cleanName.slice(0, 18);
+  const existingCount = state.people.filter((p) => p.name.toLowerCase().startsWith(shortName.toLowerCase())).length;
+  if (existingCount > 0) {
+    shortName = `${shortName} ${existingCount + 1}`;
+  }
+  state.people.push({ id: generateId('person'), name: shortName, initials: shortName.slice(0, 1).toUpperCase(), host: false, upi: '', settlementStatus: 'pending' });
   render(); toast(`${shortName} joined Friday Feast`);
+});
+document.querySelector('#addCustomDishButton').addEventListener('click', () => {
+  const rawName = window.prompt('Dish name (max 24 characters)', 'Special Thali');
+  if (!rawName || !rawName.trim()) return;
+  const name = rawName.trim().slice(0, 24);
+  const rawPrice = window.prompt(`Enter price for "${name}" in ₹`, '180');
+  if (rawPrice === null) return;
+  const price = Math.max(1, Math.min(1000, parseInt(rawPrice, 10) || 100));
+  const emojis = ['🥗', '🍝', '🍲', '🌮', '🍱', '🥟', '🥪', '🥘'];
+  const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+  const newId = generateId('dish');
+  state.menu.push({
+    id: newId,
+    name,
+    description: 'Custom added dish',
+    price,
+    emoji,
+  });
+  render();
+  toast(`Added "${name}" (₹${price}) to menu`);
 });
 document.querySelector('#checkoutButton').addEventListener('click', () => {
   if (!state.cart.length) { toast('Your cart is empty — add items first'); return; }
@@ -402,10 +603,10 @@ render();
    Checkout Modal — COD/UPI choice + Swiggy MCP simulation
    ═══════════════════════════════════════════════════════════ */
 
-const overlay  = document.querySelector('#checkoutOverlay');
-const step1    = document.querySelector('#checkoutStep1');
-const step2    = document.querySelector('#checkoutStep2');
-const step3    = document.querySelector('#checkoutStep3');
+const overlay = document.querySelector('#checkoutOverlay');
+const step1 = document.querySelector('#checkoutStep1');
+const step2 = document.querySelector('#checkoutStep2');
+const step3 = document.querySelector('#checkoutStep3');
 
 let selectedPayment = 'ONLINE';
 
@@ -679,401 +880,6 @@ document.querySelector('#trackOrder').addEventListener('click', () => {
   toast('Order is being tracked — Swiggy delivery partner assigned (demo)');
 });
 
-/* ═══════════════════════════════════════════════════════════
-   Party Planner — Multi-service orchestration
-   Food + Instamart + Dineout with budget cap, confirmation,
-   fallback, and transparent bill.
-   ═══════════════════════════════════════════════════════════ */
-
-const plannerOverlay = document.querySelector('#plannerOverlay');
-const plannerStep1    = document.querySelector('#plannerStep1');
-const plannerStep2    = document.querySelector('#plannerStep2');
-const plannerStep3    = document.querySelector('#plannerStep3');
-const plannerStep4    = document.querySelector('#plannerStep4');
-
-let plannerState = {
-  budget: 1500,
-  results: {},
-};
-
-function showPlannerStep(el) {
-  [plannerStep1, plannerStep2, plannerStep3, plannerStep4].forEach((s) => s.classList.remove('active'));
-  el.classList.add('active');
-  plannerOverlay.querySelector('.checkout-modal').scrollTop = 0;
-}
-
-function openPlanner() {
-  plannerState = { budget: 1500, results: {} };
-  showPlannerStep(plannerStep1);
-  document.querySelector('#plannerGroupInfo').innerHTML = `<strong>${state.people.length} people</strong> · Hosted by ${state.people.find((p) => p.host)?.name || 'Host'}`;
-  plannerOverlay.classList.add('open');
-  plannerOverlay.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-  trapFocus(plannerOverlay);
-}
-
-function closePlanner() {
-  plannerOverlay.classList.remove('open');
-  plannerOverlay.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-  releaseTrap(plannerOverlay);
-}
-
-document.querySelector('#plannerButton').addEventListener('click', openPlanner);
-document.querySelector('#closePlanner').addEventListener('click', closePlanner);
-document.querySelector('#cancelPlanner').addEventListener('click', closePlanner);
-plannerOverlay.addEventListener('click', (e) => { if (e.target === plannerOverlay) closePlanner(); });
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && plannerOverlay.classList.contains('open')) closePlanner(); });
-
-document.querySelector('#plannerBudget').addEventListener('input', (e) => {
-  plannerState.budget = Math.min(1000, Math.max(500, parseInt(e.target.value) || 500));
-});
-
-/* ── Start planning ── */
-document.querySelector('#startPlanner').addEventListener('click', async () => {
-  plannerState.budget = parseInt(document.querySelector('#plannerBudget').value) || 1000;
-  if (plannerState.budget < 500) { toast('Minimum budget is ₹500'); return; }
-  showPlannerStep(plannerStep2);
-  await runPlannerSimulation();
-});
-
-/**
- * Multi-service orchestration:
- *   1. Dineout → search_restaurants_dineout → get_available_slots → book_table
- *   2. Food  → search_restaurants → get_restaurant_menu → place_food_order
- *   3. Instamart → search_products → checkout
- *
- * Each step pauses for user confirmation.
- */
-async function runPlannerSimulation() {
-  const log = document.querySelector('#plannerLog');
-  log.innerHTML = '';
-  plannerState.results = { dineout: null, food: null, instamart: null };
-  let totalSpent = 0;
-  let remaining = plannerState.budget;
-
-  const addLog = (tool, status, cls) => {
-    const entry = document.createElement('div');
-    entry.className = `mcp-log-entry ${cls || ''}`;
-    entry.innerHTML = `<span class="log-tool">${tool}</span><span class="log-status ${status}">${status}</span>`;
-    log.appendChild(entry);
-  };
-
-  const runStep = (tool, ms) => new Promise((resolve) => {
-    addLog(tool, 'running', '');
-    setTimeout(() => {
-      const done = log.lastElementChild;
-      done.classList.add('done');
-      done.querySelector('.log-status').className = 'log-status done';
-      done.querySelector('.log-status').textContent = '✓ done';
-      setTimeout(resolve, 200);
-    }, ms);
-  });
-
-  // ── Phase 1: Dineout ──
-  addLog('🔍 search_restaurants_dineout', 'running');
-  await sleep(700 + Math.random() * 400);
-  log.lastElementChild.querySelector('.log-status').textContent = '✓ found 3 options';
-  log.lastElementChild.classList.add('done');
-
-  const dineoutOptions = [
-    { name: 'The Grand Pavilion', cuisine: 'North Indian', rating: 4.3, costForTwo: 800, slots: ['7:00 PM', '7:30 PM'], free: true },
-    { name: 'Spice Garden', cuisine: 'Mughlai', rating: 4.1, costForTwo: 600, slots: ['7:30 PM', '8:00 PM'], free: true },
-    { name: 'Quick Bites Café', cuisine: 'Café · Snacks', rating: 4.0, costForTwo: 350, slots: ['7:00 PM', '7:15 PM'], free: true },
-    { name: 'Rooftop Bites', cuisine: 'Fusion', rating: 4.5, costForTwo: 1200, slots: [], free: false },
-  ];
-
-  const dineoutResult = await showPlannerConfirm(
-    'dineout',
-    '🍽️ Dineout',
-    dineoutOptions,
-    (opt) => `${opt.name} · ${opt.cuisine} ★${opt.rating} · ₹${opt.costForTwo}/2 · Slots: ${opt.slots.length ? opt.slots.join(', ') : 'none'}`,
-    (opt) => {
-      if (!opt.slots.length) return { ok: false, reason: 'No available slots' };
-      if (!opt.free) return { ok: false, reason: 'Paid deals not supported' };
-      const cost = Math.round(opt.costForTwo * state.people.length / 2);
-      if (cost > remaining) return { ok: false, reason: `₹${cost} exceeds remaining ₹${remaining}` };
-      return { ok: true, cost };
-    },
-    'Dineout'
-  );
-
-  if (dineoutResult.confirmed && dineoutResult.selected) {
-    const cost = Math.round(dineoutResult.selected.costForTwo * state.people.length / 2);
-    addLog('🔍 get_available_slots', 'running');
-    await sleep(400 + Math.random() * 300);
-    log.lastElementChild.querySelector('.log-status').textContent = '✓ slots available';
-    log.lastElementChild.classList.add('done');
-
-    addLog('📅 book_table', 'running');
-    await sleep(500 + Math.random() * 300);
-    log.lastElementChild.querySelector('.log-status').textContent = `✓ Booked at ${dineoutResult.selected.name}`;
-    log.lastElementChild.classList.add('done');
-
-    plannerState.results.dineout = { name: dineoutResult.selected.name, cost, status: 'confirmed' };
-    totalSpent += cost;
-    remaining = plannerState.budget - totalSpent;
-    toast(`Table booked at ${dineoutResult.selected.name}`);
-  } else {
-    addLog('📅 book_table', 'skipped', '');
-    log.lastElementChild.querySelector('.log-status').textContent = dineoutResult.reason || 'Skipped';
-    log.lastElementChild.classList.add('done');
-    plannerState.results.dineout = { name: '—', cost: 0, status: dineoutResult.reason || 'skipped' };
-  }
-
-  // ── Phase 2: Food ──
-  addLog('🔍 search_restaurants', 'running');
-  await sleep(600 + Math.random() * 400);
-  log.lastElementChild.querySelector('.log-status').textContent = '✓ found options';
-  log.lastElementChild.classList.add('done');
-
-  const foodOptions = [
-    { name: 'Spice & Slice', cuisine: 'North Indian · Pizza', deliveryFee: 57, items: ['Paneer Tikka Wrap ₹229', 'Chicken Biryani ₹319', 'Margherita Pizza ₹299'], estimated: 800 },
-    { name: 'Dragon Bowl', cuisine: 'Asian · Noodles', deliveryFee: 47, items: ['Veg Manchurian ₹199', 'Fried Rice ₹249', 'Noodles ₹179'], estimated: 700 },
-    { name: 'Burger Barn', cuisine: 'American · Fast Food', deliveryFee: 67, items: ['Aloo Tikki Burger ₹99', 'Chicken Burger ₹179', 'Fries ₹129'], estimated: 500 },
-  ];
-
-  const remainingBudget = plannerState.budget - totalSpent;
-  const affordableFood = foodOptions.filter((o) => o.estimated <= remainingBudget);
-
-  if (affordableFood.length) {
-    const foodResult = await showPlannerConfirm(
-      'food',
-      '🍛 Swiggy Food',
-      affordableFood,
-      (opt) => `${opt.name} · ${opt.cuisine} · Est. ₹${opt.estimated} · Delivery ₹${opt.deliveryFee}`,
-      (opt) => ({ ok: true, cost: opt.estimated + opt.deliveryFee }),
-      'Food Delivery'
-    );
-
-    if (foodResult.confirmed && foodResult.selected) {
-      const cost = foodResult.selected.estimated + foodResult.selected.deliveryFee;
-      addLog('🍛 get_restaurant_menu', 'running');
-      await sleep(400 + Math.random() * 300);
-      log.lastElementChild.querySelector('.log-status').textContent = '✓ menu loaded';
-      log.lastElementChild.classList.add('done');
-
-      addLog('🍛 place_food_order', 'running');
-      await sleep(500 + Math.random() * 300);
-      log.lastElementChild.querySelector('.log-status').textContent = `✓ Order placed at ${foodResult.selected.name}`;
-      log.lastElementChild.classList.add('done');
-
-      plannerState.results.food = { name: foodResult.selected.name, cost, status: 'confirmed' };
-      totalSpent += cost;
-      remaining = plannerState.budget - totalSpent;
-    } else {
-      addLog('🍛 place_food_order', 'skipped', '');
-      log.lastElementChild.querySelector('.log-status').textContent = foodResult.reason || 'Declined';
-      log.lastElementChild.classList.add('done');
-      plannerState.results.food = { name: '—', cost: 0, status: 'skipped' };
-    }
-  } else {
-    addLog('🍛 search_restaurants', 'fallback', '');
-    log.lastElementChild.querySelector('.log-status').textContent = 'No affordable options — skipped';
-    log.lastElementChild.classList.add('done');
-    plannerState.results.food = { name: '—', cost: 0, status: 'over budget' };
-  }
-
-  // ── Phase 3: Instamart ──
-  remaining = plannerState.budget - totalSpent;
-
-  if (remaining >= 100) {
-    addLog('🛒 search_products', 'running');
-    await sleep(500 + Math.random() * 400);
-    log.lastElementChild.querySelector('.log-status').textContent = '✓ products found';
-    log.lastElementChild.classList.add('done');
-
-    const instamartBundle = [
-      { name: 'Coke (1L x 4)', price: 160 },
-      { name: 'Chilli Potato Chips (Pack x 2)', price: 80 },
-      { name: 'Mineral Water (1L x 6)', price: 120 },
-      { name: 'Ice Cream Tub (500ml)', price: 150 },
-    ];
-    const bundleCost = instamartBundle.reduce((s, i) => s + i.price, 0);
-
-    const instamartResult = await showPlannerConfirm(
-      'instamart',
-      '🛒 Swiggy Instamart',
-      [{ name: 'Party Drinks & Snacks Bundle', items: instamartBundle.map((i) => `${i.name} — ₹${i.price}`), total: bundleCost }],
-      (opt) => `${opt.name}: ${opt.items.join(', ')}`,
-      (opt) => {
-        if (opt.total > remaining) return { ok: false, reason: `₹${opt.total} exceeds remaining ₹${remaining}` };
-        return { ok: true, cost: opt.total };
-      },
-      'Instamart'
-    );
-
-    if (instamartResult.confirmed && instamartResult.selected) {
-      const cost = instamartResult.selected.total;
-      addLog('🛒 checkout', 'running');
-      await sleep(500 + Math.random() * 300);
-      log.lastElementChild.querySelector('.log-status').textContent = `✓ Order placed (₹${cost})`;
-      log.lastElementChild.classList.add('done');
-
-      plannerState.results.instamart = { name: 'Drinks & Snacks', cost, status: 'confirmed' };
-      totalSpent += cost;
-    } else {
-      addLog('🛒 checkout', 'skipped', '');
-      log.lastElementChild.querySelector('.log-status').textContent = instamartResult.reason || 'Declined';
-      log.lastElementChild.classList.add('done');
-      plannerState.results.instamart = { name: '—', cost: 0, status: 'skipped' };
-    }
-  } else {
-    addLog('🛒 search_products', 'fallback', '');
-    log.lastElementChild.querySelector('.log-status').textContent = 'Budget exhausted — skipped';
-    log.lastElementChild.classList.add('done');
-    plannerState.results.instamart = { name: '—', cost: 0, status: 'over budget' };
-  }
-
-  // ── Show final bill ──
-  await sleep(500);
-  showPlannerBill(totalSpent);
-}
-
-/* ── Confirmation dialog (reused for each service) ── */
-function showPlannerConfirm(serviceKey, badgeLabel, options, formatFn, validateFn, stepName) {
-  return new Promise((resolve) => {
-    const badgeEl = document.querySelector('#plannerConfirmBadge');
-    const titleEl = document.querySelector('#plannerConfirmTitle');
-    const subEl = document.querySelector('#plannerConfirmSub');
-    const detailsEl = document.querySelector('#plannerConfirmDetails');
-    const costEl = document.querySelector('#plannerConfirmCost');
-
-    let selectedIndex = 0;
-    const remaining = plannerState.budget - Object.values(plannerState.results).reduce((s, r) => s + (r ? r.cost : 0), 0);
-
-    const renderConfirm = () => {
-      badgeEl.innerHTML = `<span class="mcp-dot"></span>${badgeLabel}`;
-      titleEl.textContent = `Confirm ${stepName}`;
-      subEl.textContent = `Remaining budget: ₹${remaining}. Choose or skip.`;
-
-      detailsEl.innerHTML = options.map((opt, i) => {
-        const details = formatFn(opt);
-        const validation = validateFn(opt);
-        const disabled = !validation.ok;
-        return `<div class="payment-option ${i === selectedIndex && !disabled ? 'active' : ''}" style="${disabled ? 'opacity:0.5;' : ''}" data-planner-opt="${i}">
-          <div style="flex:1">
-            <strong>${disabled ? '✗ ' : ''}${escapeHtml(String(details).split(' · ')[0])}</strong>
-            <small>${escapeHtml(String(details))}</small>
-          </div>
-          <div style="text-align:right">
-            ${validation.ok ? `<strong style="color:var(--green)">₹${validation.cost}</strong>` : `<small style="color:var(--red)">${validation.reason}</small>`}
-          </div>
-        </div>`;
-      }).join('');
-
-      const sel = options[selectedIndex];
-      const val = validateFn(sel);
-      if (val.ok) {
-        costEl.innerHTML = `<span class="cost-label">${stepName} cost</span><span class="cost-value" style="color:var(--green)">₹${val.cost}</span>`;
-      } else {
-        costEl.innerHTML = `<span class="cost-label">${stepName}</span><span class="cost-value" style="color:var(--red)">${val.reason}</span>`;
-      }
-    };
-
-    renderConfirm();
-    showPlannerStep(plannerStep3);
-
-    // Selection click
-    const handler = (e) => {
-      const optEl = e.target.closest('[data-planner-opt]');
-      if (!optEl) return;
-      const idx = parseInt(optEl.dataset.plannerOpt);
-      const validation = validateFn(options[idx]);
-      if (!validation.ok) return;
-      selectedIndex = idx;
-      document.querySelectorAll('[data-planner-opt]').forEach((el, i) => el.classList.toggle('active', i === idx));
-      const sel = options[selectedIndex];
-      const val = validateFn(sel);
-      costEl.innerHTML = `<span class="cost-label">${stepName} cost</span><span class="cost-value" style="color:var(--green)">₹${val.cost}</span>`;
-    };
-    plannerStep3.addEventListener('click', handler);
-
-    // Confirm button
-    const confirmBtn = document.querySelector('#plannerConfirm');
-    const skipBtn = document.querySelector('#plannerSkip');
-
-    const cleanup = () => {
-      plannerStep3.removeEventListener('click', handler);
-      confirmBtn.removeEventListener('click', onConfirm);
-      skipBtn.removeEventListener('click', onSkip);
-    };
-
-    const onConfirm = () => {
-      cleanup();
-      const sel = options[selectedIndex];
-      const val = validateFn(sel);
-      if (!val.ok) { resolve({ confirmed: false, reason: val.reason }); return; }
-      resolve({ confirmed: true, selected: sel, cost: val.cost });
-    };
-
-    const onSkip = () => {
-      cleanup();
-      const sel = options[0];
-      const val = validateFn(sel);
-      resolve({ confirmed: false, selected: null, reason: val.ok ? 'Skipped by user' : val.reason || 'Unavailable' });
-    };
-
-    confirmBtn.addEventListener('click', onConfirm);
-    skipBtn.addEventListener('click', onSkip);
-  });
-}
-
-/* ── Display final combined bill ── */
-function showPlannerBill(totalSpent) {
-  showPlannerStep(plannerStep4);
-  const { dineout, food, instamart } = plannerState.results;
-
-  const statusLabel = (r) => {
-    if (r.status === 'confirmed') return `<span class="bill-status confirmed">✓ Confirmed</span>`;
-    return `<span class="bill-status ${r.status === 'skipped' || r.status === 'over budget' ? 'skipped' : 'failed'}">${r.status === 'skipped' || r.status === 'over budget' ? '— Skipped' : '✗ Failed'}</span>`;
-  };
-
-  const rows = [
-    { icon: '🍽️', name: 'Dineout — ' + dineout.name, cost: dineout.cost, status: statusLabel(dineout) },
-    { icon: '🍛', name: 'Food — ' + food.name, cost: food.cost, status: statusLabel(food) },
-    { icon: '🛒', name: 'Instamart — ' + instamart.name, cost: instamart.cost, status: statusLabel(instamart) },
-  ];
-
-  document.querySelector('#plannerBill').innerHTML = rows.map((r) => `
-    <div class="planner-bill-row">
-      <div class="bill-service"><span>${r.icon}</span><span>${escapeHtml(r.name)}</span></div>
-      ${r.status}
-      <strong>${r.cost ? '₹' + r.cost : '₹0'}</strong>
-    </div>
-  `).join('') + `
-    <div class="planner-bill-total">
-      <span>Total spent</span>
-      <strong class="${totalSpent <= plannerState.budget ? 'under' : 'over'}">₹${totalSpent} / ₹${plannerState.budget}</strong>
-    </div>`;
-
-  const budgetEl = document.querySelector('#plannerBudgetStatus');
-  if (totalSpent <= plannerState.budget) {
-    budgetEl.className = 'planner-budget-status within';
-    budgetEl.textContent = `✓ Budget respected — ₹${plannerState.budget - totalSpent} remaining`;
-  } else {
-    budgetEl.className = 'planner-budget-status exceeded';
-    budgetEl.textContent = `⚠ Budget exceeded by ₹${totalSpent - plannerState.budget} — adjust or skip items`;
-  }
-
-  document.querySelector('#plannerFinalSub').textContent = `${state.people.length} people · ₹${totalSpent} total · ₹${Math.round(totalSpent / state.people.length)} per person`;
-}
-
-/* ── Apply planned items to the existing order ── */
-document.querySelector('#plannerDone').addEventListener('click', () => {
-  const { food, instamart } = plannerState.results;
-  if (food && food.status === 'confirmed') {
-    state.cart = [
-      ...state.cart,
-      { id: Date.now() + 1, menuId: 'biryani', owner: currentUserId(), qty: Math.ceil(state.people.length / 2) },
-    ];
-  }
-  if (instamart && instamart.status === 'confirmed') {
-    state.cart.push({ id: Date.now() + 2, menuId: 'fries', owner: 'shared', qty: state.people.length });
-  }
-  closePlanner();
-  render();
-  toast('Party planner items added to your order!');
-});
 
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+

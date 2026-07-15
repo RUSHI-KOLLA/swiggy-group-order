@@ -1,344 +1,287 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A student-friendly group food ordering prototype." />
-    <title>splitly · Group food, sorted</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <a class="brand" href="#top" aria-label="Splitly home"><span class="brand-mark">s</span>splitly</a>
-        <div class="topbar-actions">
-          <span class="live-dot"><i></i> Group order live</span>
-          <button class="avatar" type="button" aria-label="Your profile">R</button>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A student-friendly group food ordering prototype." />
+  <title>splitly · Group food, sorted</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Splitly home"><span class="brand-mark">s</span>splitly</a>
+      <div class="topbar-actions">
+        <span class="live-dot"><i></i> Group order live</span>
+        <button class="avatar" type="button" aria-label="Your profile">R</button>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">FRIDAY, 7:30 PM · DELIVERY TO CAMPUS</p>
+          <h1>Friday Feast <span>🎈</span></h1>
+          <p class="hero-copy">One delicious order. Zero awkward calculations.</p>
         </div>
-      </header>
+        <div class="host-card">
+          <span class="host-avatar" id="hostAvatar">R</span>
+          <div><small>Hosted by</small><strong id="hostName">Rushi</strong></div>
+          <button id="inviteButton" class="outline-button" type="button">+ Invite friends</button>
+        </div>
+      </section>
 
-      <main id="top">
-        <section class="hero">
-          <div>
-            <p class="eyebrow">FRIDAY, 7:30 PM · DELIVERY TO CAMPUS</p>
-            <h1>Friday Feast <span>🎈</span></h1>
-            <p class="hero-copy">One delicious order. Zero awkward calculations.</p>
-          </div>
-          <div class="host-card">
-            <span class="host-avatar" id="hostAvatar">R</span>
-            <div><small>Hosted by</small><strong id="hostName">Rushi</strong></div>
-            <button id="inviteButton" class="outline-button" type="button">+ Invite friends</button>
-            <button id="plannerButton" class="outline-button planner-btn" type="button">✨ Plan evening</button>
-          </div>
-        </section>
+      <section class="progress" aria-label="Order progress">
+        <div class="progress-step done"><b>1</b><span>Build order</span></div>
+        <i></i>
+        <div class="progress-step current"><b>2</b><span>Split bill</span></div>
+        <i></i>
+        <div class="progress-step"><b>3</b><span>Eat happy</span></div>
+      </section>
 
-        <section class="progress" aria-label="Order progress">
-          <div class="progress-step done"><b>1</b><span>Build order</span></div>
-          <i></i>
-          <div class="progress-step current"><b>2</b><span>Split bill</span></div>
-          <i></i>
-          <div class="progress-step"><b>3</b><span>Eat happy</span></div>
-        </section>
+      <section class="birthday-card" id="birthdayCard">
+        <div class="birthday-icon">✦</div>
+        <div class="birthday-copy">
+          <p class="eyebrow">BIRTHDAY PARTY MODE</p>
+          <h2 id="birthdayTitle">It’s Rushi’s birthday!</h2>
+          <p>Celebrate together and unlock the best available host reward on this order.</p>
+        </div>
+        <div class="birthday-control">
+          <span id="birthdaySaving">₹150 reward</span>
+          <span id="birthdayEligibility" class="birthday-eligibility"></span>
+          <label class="switch" for="birthdayToggle">
+            <input id="birthdayToggle" type="checkbox" />
+            <span></span>
+          </label>
+        </div>
+      </section>
 
-        <section class="birthday-card" id="birthdayCard">
-          <div class="birthday-icon">✦</div>
-          <div class="birthday-copy">
-            <p class="eyebrow">BIRTHDAY PARTY MODE</p>
-            <h2 id="birthdayTitle">It’s Rushi’s birthday!</h2>
-            <p>Celebrate together and unlock the best available host reward on this order.</p>
-          </div>
-            <div class="birthday-control">
-            <span id="birthdaySaving">₹150 reward</span>
-            <span id="birthdayEligibility" class="birthday-eligibility"></span>
-            <label class="switch" for="birthdayToggle">
-              <input id="birthdayToggle" type="checkbox" />
-              <span></span>
-            </label>
-          </div>
-        </section>
-
-        <div class="workspace">
-          <section class="main-column">
-            <section class="panel group-panel">
-              <div class="panel-heading">
-                <div><p class="eyebrow">YOUR CREW</p><h2>Who’s eating?</h2></div>
-                <span id="peopleCount" class="count-pill">4 people</span>
+      <div class="workspace">
+        <section class="main-column">
+          <section class="panel group-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">YOUR CREW</p>
+                <h2>Who’s eating?</h2>
               </div>
-              <div class="people-grid" id="peopleGrid"></div>
-              <button id="addFriendButton" class="add-friend" type="button">+ Add another friend</button>
-            </section>
-
-            <section class="panel menu-panel">
-              <div class="panel-heading">
-                <div><p class="eyebrow">ORDER FROM</p><h2>Spice & Slice</h2></div>
-                <span class="restaurant-pill">★ 4.4 · 28 min</span>
+              <span id="peopleCount" class="count-pill">4 people</span>
+            </div>
+            <div class="budget-cap-row">
+              <label for="budgetCapInput">Group budget</label>
+              <div class="cap-input-wrap">
+                <span>₹</span>
+                <input id="budgetCapInput" type="number" min="100" max="1000" step="50" value="1000" />
               </div>
-              <div class="menu-grid" id="menuGrid"></div>
-            </section>
-
-            <section class="panel cart-panel">
-              <div class="panel-heading">
-                <div><p class="eyebrow">COMBINED CART</p><h2>Your table’s order</h2></div>
-                <span id="cartCount" class="count-pill">0 items</span>
-              </div>
-              <div id="cartList" class="cart-list"></div>
-            </section>
+              <span class="cap-per-person" id="capPerPerson">₹500 / person</span>
+            </div>
+            <div class="people-grid" id="peopleGrid"></div>
+            <button id="addFriendButton" class="add-friend" type="button">+ Add another friend</button>
           </section>
 
-          <aside class="summary-column">
-            <section class="panel split-panel">
-              <p class="eyebrow">PAYMENT PLAN</p>
-              <h2>How should we split it?</h2>
-              <div class="split-choice" role="radiogroup" aria-label="Bill split type">
-                <button class="split-option active" data-split="exact" role="radio" aria-checked="true" type="button">
-                  <span class="radio-dot"></span><span><strong>Exact split</strong><small>Pay only for your order</small></span>
-                </button>
-                <button class="split-option" data-split="equal" role="radio" aria-checked="false" type="button">
-                  <span class="radio-dot"></span><span><strong>Equal split</strong><small>Same amount for everyone</small></span>
-                </button>
+          <div id="orderingBanner" class="ordering-banner"></div>
+
+          <div id="aiSuggestions"></div>
+
+          <section class="panel menu-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">MENU · VIA SWIGGY MCP</p>
+                <h2>Pick your food</h2>
               </div>
-              <p class="split-note" id="splitNote">Items, fees and savings are shared fairly by what each person added.</p>
-            </section>
+              <div class="mcp-badge"><span class="mcp-dot"></span>3 restaurants</div>
+            </div>
+            <div id="cuisineTabs" class="cuisine-tabs"></div>
+            <div class="menu-grid" id="menuGrid"></div>
+            <button id="addCustomDishButton" class="add-friend" type="button">+ Add custom dish</button>
+          </section>
 
-            <section class="panel total-panel">
-              <div class="total-row"><span>Food subtotal</span><strong id="subtotal">₹0</strong></div>
-              <div class="total-row"><span>Delivery & platform</span><strong id="fees">₹0</strong></div>
-              <div class="total-row saving" id="discountRow"><span>Birthday reward</span><strong id="discount">−₹0</strong></div>
-              <div class="total-row grand-total"><span>Total to split</span><strong id="total">₹0</strong></div>
-              <div class="limit-note">Demo checkout uses a ₹1,000 Builder order limit.</div>
-            </section>
+          <section class="panel cart-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">COMBINED CART</p>
+                <h2>Your table’s order</h2>
+              </div>
+              <span id="cartCount" class="count-pill">0 items</span>
+            </div>
+            <div id="cartList" class="cart-list"></div>
+          </section>
+        </section>
 
-            <section class="panel share-panel">
-              <div class="share-heading"><div><p class="eyebrow">EACH PERSON PAYS</p><h2>Settle up</h2></div><button id="requestButton" type="button">Request via UPI</button></div>
-              <div id="shareList" class="share-list"></div>
-            </section>
+        <aside class="summary-column">
+          <section class="panel split-panel">
+            <p class="eyebrow">PAYMENT PLAN</p>
+            <h2>How should we split it?</h2>
+            <div class="split-choice" role="radiogroup" aria-label="Bill split type">
+              <button class="split-option active" data-split="exact" role="radio" aria-checked="true" type="button">
+                <span class="radio-dot"></span><span><strong>Exact split</strong><small>Pay only for your
+                    order</small></span>
+              </button>
+              <button class="split-option" data-split="equal" role="radio" aria-checked="false" type="button">
+                <span class="radio-dot"></span><span><strong>Equal split</strong><small>Same amount for
+                    everyone</small></span>
+              </button>
+            </div>
+            <p class="split-note" id="splitNote">Items, fees and savings are shared fairly by what each person added.
+            </p>
+          </section>
 
-            <button id="checkoutButton" class="checkout-button" type="button">Place combined order <span>→</span></button>
-            <p class="checkout-note">The host confirms the final Swiggy order via MCP.</p>
-          </aside>
+          <section class="panel total-panel">
+            <div class="total-row"><span>Food subtotal</span><strong id="subtotal">₹0</strong></div>
+            <div class="total-row"><span>Delivery & platform</span><strong id="fees">₹0</strong></div>
+            <div class="total-row saving" id="discountRow"><span>Birthday reward</span><strong
+                id="discount">−₹0</strong></div>
+            <div class="total-row grand-total"><span>Total to split</span><strong id="total">₹0</strong></div>
+            <div class="limit-note">Demo checkout uses a ₹1,000 Builder order limit.</div>
+          </section>
+
+          <section class="panel share-panel">
+            <div class="share-heading">
+              <div>
+                <p class="eyebrow">EACH PERSON PAYS</p>
+                <h2>Settle up</h2>
+              </div><button id="requestButton" type="button">Request via UPI</button>
+            </div>
+            <div id="shareList" class="share-list"></div>
+          </section>
+
+          <button id="checkoutButton" class="checkout-button" type="button">Place combined order <span>→</span></button>
+          <p class="checkout-note">The host confirms the final Swiggy order via MCP.</p>
+        </aside>
+      </div>
+    </main>
+  </div>
+  <!-- Checkout Modal -->
+  <div id="checkoutOverlay" class="checkout-overlay" aria-hidden="true">
+    <div class="checkout-modal" role="dialog" aria-labelledby="checkoutTitle" aria-modal="true">
+      <button id="closeModal" class="modal-close" type="button" aria-label="Close checkout">×</button>
+
+      <!-- Step 1: Review & Payment Selection -->
+      <div id="checkoutStep1" class="modal-step active">
+        <div class="modal-header">
+          <div class="mcp-badge"><span class="mcp-dot"></span>Swiggy MCP · Food</div>
+          <h2 id="checkoutTitle">Confirm your order</h2>
+          <p class="modal-subtitle">Review the combined order before the host places it on Swiggy.</p>
         </div>
-      </main>
-    </div>
-    <!-- Checkout Modal -->
-    <div id="checkoutOverlay" class="checkout-overlay" aria-hidden="true">
-      <div class="checkout-modal" role="dialog" aria-labelledby="checkoutTitle" aria-modal="true">
-        <button id="closeModal" class="modal-close" type="button" aria-label="Close checkout">×</button>
 
-        <!-- Step 1: Review & Payment Selection -->
-        <div id="checkoutStep1" class="modal-step active">
-          <div class="modal-header">
-            <div class="mcp-badge"><span class="mcp-dot"></span>Swiggy MCP · Food</div>
-            <h2 id="checkoutTitle">Confirm your order</h2>
-            <p class="modal-subtitle">Review the combined order before the host places it on Swiggy.</p>
+        <div class="modal-body">
+          <div class="modal-section">
+            <p class="modal-label">ORDER SUMMARY</p>
+            <div id="modalCartSummary" class="modal-cart-summary"></div>
           </div>
 
-          <div class="modal-body">
-            <div class="modal-section">
-              <p class="modal-label">ORDER SUMMARY</p>
-              <div id="modalCartSummary" class="modal-cart-summary"></div>
+          <div class="modal-section">
+            <p class="modal-label">DELIVERY ADDRESS</p>
+            <div class="modal-address">
+              <span class="addr-icon">📍</span>
+              <div>
+                <strong>Campus Gate, Block C</strong>
+                <small>Near Main Library · Bangalore 560078</small>
+              </div>
             </div>
+          </div>
 
-            <div class="modal-section">
-              <p class="modal-label">DELIVERY ADDRESS</p>
-              <div class="modal-address">
-                <span class="addr-icon">📍</span>
+          <div class="modal-section">
+            <p class="modal-label">PAYMENT METHOD</p>
+            <p class="modal-hint">Based on <code>availablePaymentMethods</code> from <code>get_food_cart</code></p>
+            <div class="payment-options" role="radiogroup" aria-label="Payment method">
+              <button class="payment-option active" data-payment="ONLINE" role="radio" aria-checked="true"
+                type="button">
+                <span class="pay-icon">💳</span>
                 <div>
-                  <strong>Campus Gate, Block C</strong>
-                  <small>Near Main Library · Bangalore 560078</small>
+                  <strong>Online / UPI</strong>
+                  <small>Pay now · Split via UPI requests</small>
                 </div>
-              </div>
-            </div>
-
-            <div class="modal-section">
-              <p class="modal-label">PAYMENT METHOD</p>
-              <p class="modal-hint">Based on <code>availablePaymentMethods</code> from <code>get_food_cart</code></p>
-              <div class="payment-options" role="radiogroup" aria-label="Payment method">
-                <button class="payment-option active" data-payment="ONLINE" role="radio" aria-checked="true" type="button">
-                  <span class="pay-icon">💳</span>
-                  <div>
-                    <strong>Online / UPI</strong>
-                    <small>Pay now · Split via UPI requests</small>
-                  </div>
-                  <span class="radio-dot"></span>
-                </button>
-                <button class="payment-option" data-payment="COD" role="radio" aria-checked="false" type="button">
-                  <span class="pay-icon">💵</span>
-                  <div>
-                    <strong>Cash on Delivery</strong>
-                    <small>Host pays cash · Collect from group</small>
-                  </div>
-                  <span class="radio-dot"></span>
-                </button>
-              </div>
-            </div>
-
-            <div class="modal-section">
-              <p class="modal-label">SPLIT BREAKDOWN</p>
-              <div id="modalSplitBreakdown" class="modal-split-breakdown"></div>
-            </div>
-
-            <div class="modal-totals">
-              <div class="modal-total-row"><span>Food subtotal</span><strong id="modalSubtotal">₹0</strong></div>
-              <div class="modal-total-row"><span>Delivery & platform</span><strong id="modalFees">₹0</strong></div>
-              <div class="modal-total-row saving" id="modalDiscountRow"><span>Birthday reward</span><strong id="modalDiscount">−₹0</strong></div>
-              <div class="modal-total-row grand"><span>Order total</span><strong id="modalTotal">₹0</strong></div>
+                <span class="radio-dot"></span>
+              </button>
+              <button class="payment-option" data-payment="COD" role="radio" aria-checked="false" type="button">
+                <span class="pay-icon">💵</span>
+                <div>
+                  <strong>Cash on Delivery</strong>
+                  <small>Host pays cash · Collect from group</small>
+                </div>
+                <span class="radio-dot"></span>
+              </button>
             </div>
           </div>
+
+          <div class="modal-section">
+            <p class="modal-label">SPLIT BREAKDOWN</p>
+            <div id="modalSplitBreakdown" class="modal-split-breakdown"></div>
+          </div>
+
+          <div class="modal-totals">
+            <div class="modal-total-row"><span>Food subtotal</span><strong id="modalSubtotal">₹0</strong></div>
+            <div class="modal-total-row"><span>Delivery & platform</span><strong id="modalFees">₹0</strong></div>
+            <div class="modal-total-row saving" id="modalDiscountRow"><span>Birthday reward</span><strong
+                id="modalDiscount">−₹0</strong></div>
+            <div class="modal-total-row grand"><span>Order total</span><strong id="modalTotal">₹0</strong></div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="cancelCheckout" class="modal-btn secondary" type="button">Cancel</button>
+          <button id="confirmOrder" class="modal-btn primary" type="button">
+            <span class="btn-text">Confirm & place order</span>
+            <span class="btn-arrow">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Processing (MCP Simulation) -->
+      <div id="checkoutStep2" class="modal-step">
+        <div class="processing-view">
+          <div class="mcp-badge"><span class="mcp-dot"></span>Swiggy MCP · Food</div>
+          <div class="processing-spinner"></div>
+          <h2>Placing your order…</h2>
+          <div id="mcpLog" class="mcp-log">
+            <div class="mcp-log-entry"><span class="log-tool">get_food_cart</span><span
+                class="log-status pending">pending</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Success -->
+      <div id="checkoutStep3" class="modal-step">
+        <div class="success-view">
+          <div class="success-icon">✓</div>
+          <div class="mcp-badge success"><span class="mcp-dot"></span>Swiggy MCP · Food</div>
+          <h2 id="successMessage">Swiggy order placed successfully!</h2>
+          <p class="success-subtitle" id="successPayment"></p>
+
+          <div class="order-card">
+            <div class="order-card-row"><span>Order ID</span><strong id="successOrderId">#SW-928471</strong></div>
+            <div class="order-card-row"><span>Restaurant</span><strong>Spice & Slice</strong></div>
+            <div class="order-card-row"><span>ETA</span><strong id="successEta">28-32 min</strong></div>
+            <div class="order-card-row"><span>Status</span><span class="status-badge"
+                id="successStatus">Confirmed</span></div>
+          </div>
+
+          <div id="successSplitSummary" class="success-split-summary"></div>
 
           <div class="modal-footer">
-            <button id="cancelCheckout" class="modal-btn secondary" type="button">Cancel</button>
-            <button id="confirmOrder" class="modal-btn primary" type="button">
-              <span class="btn-text">Confirm & place order</span>
+            <button id="trackOrder" class="modal-btn primary full" type="button">
+              <span class="btn-text">Track order on Swiggy</span>
               <span class="btn-arrow">→</span>
             </button>
-          </div>
-        </div>
-
-        <!-- Step 2: Processing (MCP Simulation) -->
-        <div id="checkoutStep2" class="modal-step">
-          <div class="processing-view">
-            <div class="mcp-badge"><span class="mcp-dot"></span>Swiggy MCP · Food</div>
-            <div class="processing-spinner"></div>
-            <h2>Placing your order…</h2>
-            <div id="mcpLog" class="mcp-log">
-              <div class="mcp-log-entry"><span class="log-tool">get_food_cart</span><span class="log-status pending">pending</span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 3: Success -->
-        <div id="checkoutStep3" class="modal-step">
-          <div class="success-view">
-            <div class="success-icon">✓</div>
-            <div class="mcp-badge success"><span class="mcp-dot"></span>Swiggy MCP · Food</div>
-            <h2 id="successMessage">Swiggy order placed successfully!</h2>
-            <p class="success-subtitle" id="successPayment"></p>
-
-            <div class="order-card">
-              <div class="order-card-row"><span>Order ID</span><strong id="successOrderId">#SW-928471</strong></div>
-              <div class="order-card-row"><span>Restaurant</span><strong>Spice & Slice</strong></div>
-              <div class="order-card-row"><span>ETA</span><strong id="successEta">28-32 min</strong></div>
-              <div class="order-card-row"><span>Status</span><span class="status-badge" id="successStatus">Confirmed</span></div>
-            </div>
-
-            <div id="successSplitSummary" class="success-split-summary"></div>
-
-            <div class="modal-footer">
-              <button id="trackOrder" class="modal-btn primary full" type="button">
-                <span class="btn-text">Track order on Swiggy</span>
-                <span class="btn-arrow">→</span>
-              </button>
-              <p class="cancel-note">To cancel, please contact Swiggy customer support</p>
-            </div>
+            <p class="cancel-note">To cancel, please contact Swiggy customer support</p>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Party Planner Modal -->
-    <div id="plannerOverlay" class="checkout-overlay" aria-hidden="true">
-      <div class="checkout-modal planner-modal" role="dialog" aria-labelledby="plannerTitle" aria-modal="true">
-        <button id="closePlanner" class="modal-close" type="button" aria-label="Close planner">×</button>
 
-        <!-- Step 1: Budget Setup -->
-        <div id="plannerStep1" class="modal-step active">
-          <div class="modal-header">
-            <h2 id="plannerTitle">Plan My Evening</h2>
-            <p class="modal-subtitle">Set your budget and preferences. I'll coordinate Food, Instamart, and Dineout.</p>
-          </div>
-          <div class="modal-body">
-            <div class="modal-section">
-              <p class="modal-label">YOUR GROUP</p>
-              <div class="planner-group-info" id="plannerGroupInfo"></div>
-            </div>
-            <div class="modal-section">
-              <p class="modal-label">BUDGET</p>
-              <p class="modal-hint">Total budget across all services (Food + Instamart + Dineout)</p>
-              <div class="planner-budget-row">
-                <span class="planner-currency">₹</span>
-                <input id="plannerBudget" class="planner-input" type="number" min="500" max="1000" step="50" value="1000" />
-                <span class="planner-hint">max ₹1,000 (demo limit)</span>
-              </div>
-            </div>
-            <div class="modal-section">
-              <p class="modal-label">PREFERENCES</p>
-              <p class="modal-hint">What kind of food, drinks, and vibe?</p>
-              <textarea id="plannerPrefs" class="planner-textarea" rows="3" placeholder="e.g. North Indian dinner, cold drinks, casual vibe">North Indian dinner, cold drinks, casual vibe</textarea>
-            </div>
-            <div class="modal-section">
-              <p class="modal-label">SERVICES WE'LL CHECK</p>
-              <div class="planner-services">
-                <div class="planner-service"><span class="service-icon">🍛</span><span>Swiggy Food</span></div>
-                <div class="planner-service"><span class="service-icon">🛒</span><span>Swiggy Instamart</span></div>
-                <div class="planner-service"><span class="service-icon">🍽️</span><span>Swiggy Dineout</span></div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button id="cancelPlanner" class="modal-btn secondary" type="button">Cancel</button>
-            <button id="startPlanner" class="modal-btn primary" type="button">
-              <span class="btn-text">Start planning →</span>
-            </button>
-          </div>
-        </div>
 
-        <!-- Step 2: Planning Progress (MCP Simulation) -->
-        <div id="plannerStep2" class="modal-step">
-          <div class="processing-view">
-            <div class="mcp-badge"><span class="mcp-dot"></span>Swiggy MCP · Multi-Service</div>
-            <div class="processing-spinner"></div>
-            <h2>Planning your evening…</h2>
-            <div id="plannerLog" class="mcp-log">
-              <div class="mcp-log-entry"><span class="log-tool">Initializing</span><span class="log-status pending">pending</span></div>
-            </div>
-          </div>
-        </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="checkoutAnnounce" class="sr-only" role="status" aria-live="assertive" aria-atomic="true"></div>
+  <script src="app.js"></script>
+</body>
 
-        <!-- Step 3: Confirmation Step (reused for each service) -->
-        <div id="plannerStep3" class="modal-step">
-          <div class="modal-header">
-            <div id="plannerConfirmBadge" class="mcp-badge"></div>
-            <h2 id="plannerConfirmTitle">Review & Confirm</h2>
-            <p id="plannerConfirmSub" class="modal-subtitle">Please confirm before proceeding.</p>
-          </div>
-          <div class="modal-body">
-            <div id="plannerConfirmDetails" class="modal-section"></div>
-            <div id="plannerConfirmCost" class="modal-section planner-cost-box"></div>
-          </div>
-          <div class="modal-footer">
-            <button id="plannerSkip" class="modal-btn secondary" type="button">Skip (unavailable)</button>
-            <button id="plannerConfirm" class="modal-btn primary" type="button">
-              <span class="btn-text">Confirm ✓</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 4: Final Combined Bill -->
-        <div id="plannerStep4" class="modal-step">
-          <div class="success-view">
-            <div class="success-icon">✓</div>
-            <div class="mcp-badge success"><span class="mcp-dot"></span>Evening Planned</div>
-            <h2>Your evening is set!</h2>
-            <p class="success-subtitle" id="plannerFinalSub"></p>
-
-            <div id="plannerBill" class="planner-bill"></div>
-            <div id="plannerBudgetStatus" class="planner-budget-status"></div>
-
-            <div class="modal-footer" style="justify-content: center;">
-              <button id="plannerDone" class="modal-btn primary full" type="button">
-                <span class="btn-text">Apply to order →</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <div id="checkoutAnnounce" class="sr-only" role="status" aria-live="assertive" aria-atomic="true"></div>
-    <script src="app.js"></script>
-  </body>
 </html>

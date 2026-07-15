@@ -1,106 +1,127 @@
 # 🍕 Splitly — Group Food, Sorted.
 
-**Splitly** is a high-fidelity prototype designed for students and groups to eliminate the "awkward math" of group food ordering. Built as a showcase for the **Swiggy Builders Club**, it integrates the concept of AI-native commerce infrastructure into a seamless, social ordering experience.
+[![Swiggy Builders Club](https://img.shields.io/badge/Swiggy%20Builders%20Club-MCP%20Showcase-fc8019?style=for-the-badge&logo=swiggy&logoColor=white)](https://mcp.swiggy.com/builders)
+[![Stack: Vanilla JS](https://img.shields.io/badge/Stack-Vanilla%20JS%20%7C%20HTML5%20%7C%20CSS3-18271d?style=for-the-badge)](https://developer.mozilla.org/)
+[![Safety: Max ₹1000](https://img.shields.io/badge/Builder%20Limit-₹1%2C000%20Cap-1a7a4d?style=for-the-badge)](#-safety--guardrails)
 
-
-
-## ✨ Core Features
-
-### 👥 Collaborative Ordering
-- **Group Cart**: Build a unified order from a selected restaurant (e.g., *Spice & Slice*).
-- **Crew Management**: Add friends to the order and track who is eating what in real-time.
-- **Item Attribution**: Assign specific dishes to individuals or share them among the group.
-
-### 📉 Intelligent Bill Splitting
-Switch between two powerful splitting modes:
-- **Exact Split**: Users pay only for what they ordered. Delivery fees and taxes are distributed **proportionally** based on the value of their items.
-- **Equal Split**: The total bill (including fees and rewards) is divided evenly across all participants.
-
-### 🎂 Birthday Party Mode
-A dedicated social feature that celebrates the host:
-- **Host Reward**: Toggle "Birthday Mode" to apply a special reward (up to ₹150 or 20% off) to the total bill.
-- **Social Signaling**: Visually marks the event as a celebration, enhancing the group experience.
-
-### 🤖 Swiggy MCP Simulation
-The prototype demonstrates a sophisticated integration boundary with the **Swiggy Builders MCP (Model Context Protocol)**. It simulates the end-to-end journey of a professional AI agent:
-1. `get_food_cart` $\rightarrow$ Review current items and payment methods.
-2. `place_food_order` $\rightarrow$ Finalize the order on behalf of the host.
-3. `track_food_order` $\rightarrow$ Get initial delivery status and ETA.
-
-### ✨ AI Party Planner (Cross-Service)
-An intelligent multi-service orchestrator that coordinates **Food, Instamart, and Dineout** in a single session:
-
-- **Budget Cap**: User sets a ₹500–₹5,000 total budget upfront. Each service checks remaining budget before proceeding.
-- **Service Confirmation**: Every step (Dineout booking, Food order, Instamart checkout) requires explicit user confirmation — nothing happens automatically.
-- **Graceful Fallback**: If a service has no availability or exceeds budget, it is skipped with a clear reason shown in the MCP log.
-- **Transparent Combined Bill**: Final screen shows all 3 services on one ledger with confirmed/skipped status, individual costs, and total vs budget with per-person split.
-
-**Orchestration flow:**
-1. **Dineout**: `search_restaurants_dineout` $\rightarrow$ `get_available_slots` $\rightarrow$ user confirms $\rightarrow$ `book_table`
-2. **Food**: `search_restaurants` $\rightarrow$ `get_restaurant_menu` $\rightarrow$ user confirms $\rightarrow$ `place_food_order`
-3. **Instamart**: `search_products` $\rightarrow$ user confirms $\rightarrow$ `checkout`
-
-Planned items can be applied to the group cart for splitting.
+**Splitly** is an AI-native group ordering and bill-splitting prototype built for students, roommates, and campus crews. Designed as an interactive showcase for the **Swiggy Builders Club**, Splitly eliminates the "awkward math" of group food orders while demonstrating production-grade orchestration across **Swiggy Food**, **Swiggy Instamart**, and **Swiggy Dineout** via the **Model Context Protocol (MCP)**.
 
 ---
 
-## 🛠️ Technical Stack
+## ✨ Why Splitly?
 
-- **Frontend**: Pure Vanilla JavaScript (ES6+), HTML5, CSS3.
-- **Styling**: Modern CSS featuring CSS Variables, Grid, Flexbox, and Responsive Media Queries.
-- **Design**: Minimalist, "Paper & Ink" aesthetic focusing on readability and accessibility (ARIA roles).
-- **Architecture**: State-driven rendering loop ensuring a single source of truth for the cart and splits.
+Group food ordering on campuses usually involves endless screenshots, manual calculator math, and chasing people for UPI payments. Splitly transforms this into a collaborative, AI-assisted experience:
 
----
-
-> **Note:** The checkout demo enforces a **₹1,000 Builder order limit** as a safety guardrail. Orders exceeding this will be blocked with a friendly message.
-
-## 🚀 Getting Started
-
-Since Splitly is a dependency-free browser prototype, you can run it instantly:
-
-### Option 1: Direct Open
-Simply open `index.html` in any modern web browser.
-
-### Option 2: Local Server (Recommended)
-Use a simple static server to avoid CORS issues with local assets:
-```bash
-npx serve .
+```mermaid
+graph TD
+    A[👥 Group Cart & Crew Management] -->|Live Attribution| B[🧮 Intelligent Splitting Engine]
+    B -->|Proportional Fees & Birthday Discounts| C[💳 Settlement & UPI Requests]
+    F[🧠 AI Suggestions] -->|Smart Pairings| A
+    G[🍴 Cuisine Filter] -->|Browse by Type| A
+    C -->|Simulated MCP Tools| E[🚀 Swiggy Order Execution]
 ```
 
 ---
 
-## 🧮 The Splitting Logic
+## 🚀 Core Capabilities
 
-Splitly employs a fair distribution algorithm for the **Exact Split** mode:
+### 1. 👥 Collaborative Ordering & Attribution
+- **Unified Table Order**: Build an order from *Spice & Slice* with real-time crew tracking.
+- **Individual vs. Shared Ownership**: Assign each dish to a specific person or mark it as **Shared Equally** across the table.
+- **Dynamic Crew Expansion**: Add friends on the fly with XSS-safe validation and automatic duplicate name resolution.
 
-$$\text{Individual Share} = \text{Item Cost} + \left( \frac{\text{Item Cost}}{\text{Subtotal}} \times \text{Fees} \right) - \left( \frac{\text{Item Cost}}{\text{Subtotal}} \times \text{Rewards} \right)$$
+### 2. 📉 Intelligent & Reconciled Bill Splitting
+Splitly supports two distinct settlement modes:
+- **Exact Split (Proportional Attribution)**: You pay only for what you eat. Shared platform/delivery fees and host discounts are distributed **proportionally** based on your share of the subtotal.
+- **Equal Split**: The total bill (including all fees and savings) is split equally among all crew members.
+- **Rupee-Exact Reconciliation**: Uses the **Largest Remainder Method** to ensure individual integer shares sum up exactly to the invoice total without a single rupee of rounding leakage.
 
-*This ensures that the person who orders the most expensive item bears a proportional share of the delivery costs, while those who order nothing pay nothing.*
+### 3. 🎂 Birthday Party Mode
+- **Host Reward**: Toggle **Birthday Mode** on the host's birthday to unlock up to **₹150 (20% off)** instant savings.
+- **Dynamic Eligibility**: Automatically validates eligibility and reflects clean celebratory UI signaling for the entire group.
+
+### 4. 🍴 Cuisine Filtering & Custom Dishes
+- **Cuisine Tabs**: Filter the menu by North Indian, Chinese, Pizza & Snacks, or Drinks & Desserts.
+- **Custom Dishes**: Add your own dishes to the menu with a name and price — they appear across all filters.
+
+### 5. 🧠 AI Suggestions
+Smart, context-aware recommendations that adapt to what the group has ordered:
+- Pairing suggestions (e.g., Mango Lassi with Biryani)
+- Budget-aware recommendations when you're running low
+- Nudges for unordered crew members
+- Dessert prompts after main courses
 
 ---
 
-## 🗺️ MCP Tooling Journeys
+## 🧮 The Exact-Split Mathematical Model
 
-### Food Checkout Journey
-The "Confirm Order" flow simulates the following MCP interaction:
+For **Exact Split** mode, each participant's share $S_i$ is calculated as:
 
-| Stage | Tool Called | Purpose |
-| :--- | :--- | :--- |
-| **Verification** | `get_food_cart` | Validates final totals and available payment methods. |
-| **Execution** | `place_food_order` | Commits the order to the Swiggy Food delivery system. |
-| **Tracking** | `track_food_order` | Initializes real-time delivery monitoring. |
+$$S_i = C_i + \left( \frac{C_i}{T_{\text{subtotal}}} \times F_{\text{fees}} \right) - \left( \frac{C_i}{T_{\text{subtotal}}} \times D_{\text{discount}} \right)$$
 
-### Party Planner Multi-Service Journey
-The "Plan Evening" flow coordinates across 3 MCP servers:
+Where:
+- $C_i$ = Value of items owned by person $i$ plus their equal portion of shared table items.
+- $T_{\text{subtotal}}$ = Total food subtotal across all items.
+- $F_{\text{fees}}$ = Delivery & platform fee (₹57).
+- $D_{\text{discount}}$ = Birthday reward savings (up to ₹150).
 
-| Service | Tools Called |
-| :--- | :--- |
-| **Dineout** | `search_restaurants_dineout` $\rightarrow$ `get_available_slots` $\rightarrow$ `book_table` |
-| **Food** | `search_restaurants` $\rightarrow$ `get_restaurant_menu` $\rightarrow$ `place_food_order` |
-| **Instamart** | `search_products` $\rightarrow$ `checkout` |
+> **Reconciliation Guarantee**: After computing proportional floating-point shares, the **Largest Remainder Algorithm** distributes any leftover fractional rupees to the participants with the highest remainders so $\sum S_i = \text{Total Bill}$.
+
+---
+
+## 🗺️ Swiggy MCP Tool Boundaries
+
+Splitly simulates the exact contract schemas of Swiggy's MCP developer ecosystem:
+
+```
+[Splitly Client]
+       │
+       ├─► get_food_cart()           ──► Validates items, totals & availablePaymentMethods
+       ├─► place_food_order()        ──► Submits order with addressId & paymentMethod (ONLINE / COD)
+       └─► track_food_order()        ──► Returns live order status & ETA (28-32 min)
+```
+
+---
+
+## 🏁 Quickstart Guide for Judges & Reviewers
+
+Splitly is completely dependency-free and runs directly in any modern web browser.
+
+### Option 1: Instant Local Static Server (Recommended)
+```bash
+# Serve the directory on http://localhost:3000
+npx serve .
+```
+
+### Option 2: Direct File Open
+Simply open `index.html` in Chrome, Firefox, Edge, or Safari.
+
+---
+
+## 🔍 Evaluation Checklist
+
+When evaluating the prototype, try the following flows:
+
+1. **Test Proportional Exact Splitting**:
+   - Assign the *Chicken Biryani* to Arjun and *Paneer Tikka Wrap* to Rushi.
+   - Observe how delivery fees are split proportionally to item costs.
+2. **Toggle Birthday Party Mode**:
+   - Turn on the Birthday toggle in the hero section to watch the **₹150 reward** dynamically deduct from the total and adjust individual shares.
+3. **Filter by Cuisine**:
+   - Click the cuisine tabs (North Indian, Chinese, etc.) to filter the menu.
+   - Add a custom dish and verify it appears across all filters.
+4. **Complete MCP Checkout**:
+   - Click **Place combined order →**, select **Online / UPI** or **Cash on Delivery**, and confirm to see the live simulated Swiggy MCP execution log.
+
+---
+
+## 🛡️ Safety & Guardrails
+- **₹1,000 Builder Demo Cap**: The interactive checkout enforces a maximum order value of ₹1,000.
+- **Per-Person Budget Cap**: Each crew member has a ₹1,000 budget limit (₹250/person for 4 people) to prevent overspending.
+- **XSS Sanitization**: All user-generated text (friend names, custom labels) is strictly escaped via `escapeHtml()`.
+- **Keyboard & Screen Reader Accessible**: Modals feature focus trapping, ARIA roles (`role="dialog"`, `aria-modal="true"`), and live polite announcements.
 
 ---
 
 ## 📜 License
-Developed as part of the **Swiggy Builders Club** ecosystem.
+Developed for the **[Swiggy Builders Club](https://mcp.swiggy.com/builders)** ecosystem.
